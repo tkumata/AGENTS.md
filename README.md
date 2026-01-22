@@ -39,8 +39,6 @@ ln -sf "$(pwd)/AGENTS.md" "$HOME/.gemini/GEMINI.md"
 
 ## PRIORITY ORDER (優先順位ルール)
 
-## MANDATORY BEHAVIORS (必須挙動)
-
 ## PROHIBITIONS (禁止事項)
 
 ## PHASE RULES (フェーズ判定)
@@ -52,9 +50,6 @@ ln -sf "$(pwd)/AGENTS.md" "$HOME/.gemini/GEMINI.md"
 ## VIOLATION HANDLING (違反時の挙動)
 ```
 
-## 結果
+## 注釈
 
-- これまで Antigravity は、頑なに英語のレスポンス・アーティファクトなどだったが、思考プロセスとシステムエラー以外が日本語になった。
-- Codex の無駄な質問が減少した。
-
-※ AI に評価させると、PROHIBITIONS (禁止事項) が「厳格すぎ」で減点ですが、Electron 系エディタでは英語日本語の比率が 2:3 になり、表や図がずれるので、あえてこのままにしています。
+Google Antigravity の日本語アーティファクト生成が全く安定しないので、言語に関する指示は最上部に移動しました。一回日本語でやりとりすると Google Antigravity を終了するまで日本語アーティファクトを作成するのですが、Antigravity を落とすと GEMINI.md があろうが英語アーティファクトになります。また Task は英語だけど Implementation Plan は日本語だったり、逆もあったりかなりフラストレーションが溜まります。

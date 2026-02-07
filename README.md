@@ -4,7 +4,7 @@
 
 皆様の自慢の AGENTS.md / GEMINI.md / CLAUDE.md などありましたらご紹介いただけると幸いです。
 
-## 使い方
+## AGENTS.md の使い方
 
 ```shell
 # setup for codex
@@ -53,3 +53,20 @@ ln -sf "$(pwd)/AGENTS.md" "$HOME/.gemini/GEMINI.md"
 ## 注釈
 
 Google Antigravity の日本語アーティファクト生成が全く安定しないので、言語に関する指示は最上部に移動しました。一回日本語でやりとりすると Google Antigravity を終了するまで日本語アーティファクトを作成するのですが、Antigravity を落とすと GEMINI.md があろうが英語アーティファクトになります。また Task は英語だけど Implementation Plan は日本語だったり、逆もあったりかなりフラストレーションが溜まります。
+
+## SKILL の使い方
+
+SKILL は AGENTS.md を前提として、特定のスキルセットを定義したものです。
+
+例: Rust のコーディング
+
+```shell
+# setup for codex
+ln -sf "$(pwd)/skills/rust-coding/SKILL.md" "$HOME/.codex/skills/rust-coding/SKILL.md"
+
+# setup for claude
+ln -sf "$(pwd)/skills/rust-coding/SKILL.md" "$HOME/.claude/skills/rust-coding/SKILL.md"
+
+# setup for Antigravity
+ln -sf "$(pwd)/skills/rust-coding/SKILL.md" "$HOME/.gemini/antigravity/skills/rust-coding/SKILL.md"
+```

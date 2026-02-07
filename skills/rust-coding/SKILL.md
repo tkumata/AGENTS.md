@@ -7,7 +7,7 @@ description: Rust の CLI と Web サーバ開発、設計、テスト、エラ�
 
 ## 前提
 
-- AGENTS.md と GEMINI.md を必ず遵守する。
+- 前提として AGENTS.md と GEMINI.md と CLAUDE.md を必ず遵守すること。
 
 ## 概要
 

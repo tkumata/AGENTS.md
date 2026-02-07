@@ -7,7 +7,7 @@ description: マイコンボード開発における組み込み C 言語の設�
 
 ## 前提
 
-- AGENTS.md と GEMINI.md を必ず遵守する。
+- 前提として AGENTS.md と GEMINI.md と CLAUDE.md を必ず遵守すること。
 
 ## 概要
 

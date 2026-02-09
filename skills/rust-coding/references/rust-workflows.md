@@ -32,6 +32,7 @@ fn run(args: Args) -> anyhow::Result<()> {
 
 ```rust
 use axum::{routing::get, Router};
+use tokio::net::TcpListener;
 
 async fn health() -> &'static str {
     "ok"
@@ -40,10 +41,8 @@ async fn health() -> &'static str {
 #[tokio::main]
 async fn main() {
     let app = Router::new().route("/health", get(health));
-    axum::Server::bind(&"0.0.0.0:3000".parse().unwrap())
-        .serve(app.into_make_service())
-        .await
-        .unwrap();
+    let listener = TcpListener::bind("0.0.0.0:3000").await.unwrap();
+    axum::serve(listener, app).await.unwrap();
 }
 ```
 

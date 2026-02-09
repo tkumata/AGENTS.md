@@ -28,7 +28,6 @@ module_status_t module_read(uint8_t *out, uint16_t out_len);
 ```c
 // module.c
 #include "module.h"
-#include "module_internal.h"
 
 static bool module_ready;
 
@@ -118,6 +117,7 @@ bool is_timeout(uint32_t start_ms, uint32_t now_ms, uint32_t timeout_ms) {
 ```c
 // hal_gpio.h
 #pragma once
+#include <stdint.h>
 #include <stdbool.h>
 void hal_gpio_write(uint8_t pin, bool level);
 ```

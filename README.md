@@ -1,23 +1,21 @@
 # AGENTS.md
 
-コーディングエージェントが暴走しないよう AGENTS.md を用意する必要がありますが、エージェント非依存・プロジェクト非依存などの共通部分を二重管理にならないよう本リポジトリで管理します。
-
-皆様の自慢の AGENTS.md / GEMINI.md / CLAUDE.md などありましたらご紹介いただけると幸いです。
+コーディングエージェントが暴走しないよう AGENTS.md を用意する必要がありますが、エージェント非依存・プロジェクト非依存などに対応するために一元管理します。
 
 ## AGENTS.md の使い方
 
 ```shell
-# setup for codex
-ln -sf "$(pwd)/AGENTS.md" "$HOME/.codex/AGENTS.md"
+# setup for Codex
+ln -s "$(pwd)/AGENTS.md" "$HOME/.codex/AGENTS.md"
 
-# setup for claude
-ln -sf "$(pwd)/AGENTS.md" "$HOME/.claude/CLAUDE.md"
+# setup for Claude
+ln -s "$(pwd)/AGENTS.md" "$HOME/.claude/CLAUDE.md"
 
-# setup for gemini and Antigravity
-ln -sf "$(pwd)/AGENTS.md" "$HOME/.gemini/GEMINI.md"
+# setup for Gemini and Antigravity
+ln -s "$(pwd)/AGENTS.md" "$HOME/.gemini/GEMINI.md"
 ```
 
-## 構造
+### 構造
 
 人間向けではなく機械向けに記述するには以下に注意する必要があります。
 
@@ -50,23 +48,20 @@ ln -sf "$(pwd)/AGENTS.md" "$HOME/.gemini/GEMINI.md"
 ## VIOLATION HANDLING (違反時の挙動)
 ```
 
-## 注釈
+### 注釈
 
-Google Antigravity の日本語アーティファクト生成が全く安定しないので、言語に関する指示は最上部に移動しました。一回日本語でやりとりすると Google Antigravity を終了するまで日本語アーティファクトを作成するのですが、Antigravity を落とすと GEMINI.md があろうが英語アーティファクトになります。また Task は英語だけど Implementation Plan は日本語だったり、逆もあったりかなりフラストレーションが溜まります。
+Google Antigravity の日本語アーティファクト生成が全く安定しないので、言語に関する指示は最上部に移動しました。また、禁止事項にもアーティファクトについての記述を追加しました。
 
 ## SKILL の使い方
 
-SKILL は AGENTS.md を前提として、特定のスキルセットを定義したものです。
+SKILL は AGENTS.md (GEMINI.md / CLAUDE.md) を前提として、特定のスキルセットを定義したものです。
 
 例: Rust のコーディング
 
 ```shell
-# setup for codex
-ln -sf "$(pwd)/skills/rust-coding/SKILL.md" "$HOME/.codex/skills/rust-coding/SKILL.md"
-
-# setup for claude
-ln -sf "$(pwd)/skills/rust-coding/SKILL.md" "$HOME/.claude/skills/rust-coding/SKILL.md"
+# setup for Codex
+ln -s "$(pwd)/skills/rust-coding" "$HOME/.agents/skills/rust-coding"
 
 # setup for Antigravity
-ln -sf "$(pwd)/skills/rust-coding/SKILL.md" "$HOME/.gemini/antigravity/skills/rust-coding/SKILL.md"
+ln -s "$(pwd)/skills/rust-coding" "$HOME/.gemini/antigravity/skills/rust-coding"
 ```

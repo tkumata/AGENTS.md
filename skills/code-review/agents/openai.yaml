@@ -1,0 +1,4 @@
+interface:
+  display_name: "Code Review"
+  short_description: "バグと回帰リスクに集中したコードレビューを支援する"
+  default_prompt: "コードレビューを実施し、重大度順に指摘を整理して。"

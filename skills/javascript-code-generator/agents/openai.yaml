@@ -1,0 +1,4 @@
+interface:
+  display_name: "JavaScript コーディング"
+  short_description: "Vanilla JS/AngularJS/Vue/Nuxt/React のコード生成を支援"
+  default_prompt: "JavaScript の実装方針を整理し、Vanilla JS・AngularJS・Vue・Nuxt・React のいずれかでコードを生成して。"

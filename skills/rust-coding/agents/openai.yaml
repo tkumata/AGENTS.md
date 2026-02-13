@@ -1,0 +1,4 @@
+interface:
+  display_name: "Rust Coding"
+  short_description: "Rust の CLI と Web サーバ開発を支援"
+  default_prompt: "Rust の CLI や Web サーバ実装、設計、テスト、エラー設計を支援して。"

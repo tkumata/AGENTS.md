@@ -1,0 +1,4 @@
+interface:
+  display_name: "Embedded C Coding"
+  short_description: "組み込み C とマイコン開発を支援"
+  default_prompt: "マイコンボード開発の組み込み C 実装、設計、レビュー、テストを支援して。"

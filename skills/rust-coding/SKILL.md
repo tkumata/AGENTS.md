@@ -1,49 +1,49 @@
 ---
 name: rust-coding
-description: Rust の CLI と Web サーバ開発、設計、テスト、エラー設計を支援する。Rust コードの実装、リファクタ、構成検討、cargo/clippy/fmt の運用、代表的クレート選定が必要なときに使う。
+description: Supports Rust CLI and Web server development, design, testing, and error handling. use when implementation, refactoring, structure planning, cargo/clippy/fmt operations, or crate selection are needed.
 ---
 
-# Rust コーディング
+# Rust Coding
 
-## 前提
+## Prerequisites
 
-- 前提として AGENTS.md と GEMINI.md と CLAUDE.md を必ず遵守すること。
+- Must comply with AGENTS.md, GEMINI.md, and CLAUDE.md.
 
-## 概要
+## Overview
 
-Rust の CLI と Web サーバ開発における実装と設計を、最小の前提確認から進めるための指針を提供する。
-既存プロジェクトの慣習とコードを最優先にし、必要な場合のみ最小限の追加仕様を提案する。
+Provides guidelines for implementing and designing Rust CLI tools and Web servers with minimal prerequisite checks.
+Prioritizes existing project conventions and code, proposing minimal additional specifications only when necessary.
 
-## 進め方
+## Process
 
-1. 対象を確認する。CLI か Web サーバか、または両方かを明確にする。
-2. 入出力、エラー時の挙動、性能要件、非同期の要否、外部依存を確認する。
-3. 既存コードの構成、モジュール分割、命名、エラーポリシーに合わせる。
-4. 実装とテストの順で進め、`cargo fmt` と `cargo clippy` を前提にする。
+1. Identify the target: Clarify whether it is a CLI, Web server, or both.
+2. Confirm inputs/outputs, error behavior, performance requirements, need for async, and external dependencies.
+3. Align with existing code structure, module separation, naming conventions, and error policies.
+4. Proceed with implementation followed by testing, assuming `cargo fmt` and `cargo clippy` usage.
 
-## CLI の指針
+## CLI Guidelines
 
-- 引数解析は `clap` を基本とし、サブコマンドがある場合は階層を浅く保つ。
-- 標準入出力の扱い、終了コード、エラーメッセージの形式を明確にする。
-- 失敗時は短い診断メッセージと再現可能な入力例を添える。
+- Use `clap` for argument parsing by default; keep subcommand hierarchy shallow if present.
+- Clarify handling of standard I/O, exit codes, and error message formats.
+- On failure, provide short diagnostic messages and reproducible input examples.
 
-## Web サーバの指針
+## Web Server Guidelines
 
-- フレームワークは `axum` と `tokio` を基本とする。
-- ルーティング、状態管理、エラー変換、ログ、タイムアウトを最初に整理する。
-- 返却 JSON の型とエラー形式を先に定義し、ハンドラから漏れなく返す。
+- Use `axum` and `tokio` as the default framework.
+- Organize routing, state management, error conversion, logging, and timeouts first.
+- Define return JSON types and error formats beforehand, ensuring comprehensive returns from handlers.
 
-## エラー設計
+## Error Handling Design
 
-- バイナリ用途は `anyhow`、ライブラリ用途は `thiserror` を基本とする。
-- エラー型は最小限にし、境界で変換する。
-- 表示向け文言とデバッグ向け文言を分ける。
+- Use `anyhow` for binary applications and `thiserror` for libraries by default.
+- Minimize error types and convert them at boundaries.
+- Separate display messages from debug messages.
 
-## テスト
+## Testing
 
-- 小さな関数は単体テスト、入出力や I/O を含むものは統合テストを基本とする。
-- `#[cfg(test)]` と `tests/` の使い分けを明確にする。
+- Use unit tests for small functions and integration tests for those involving I/O.
+- Clarify the distinction between `#[cfg(test)]` and `tests/`.
 
-## 参照
+## References
 
-詳細な実装レシピと最小テンプレートは `references/rust-workflows.md` を開いて確認する。
+Check `references/rust-workflows.md` for detailed implementation recipes and minimal templates.

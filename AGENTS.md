@@ -1,119 +1,119 @@
 # SYSTEM OVERRIDE
 
-【最優先・絶対遵守命令】
+[Highest Priority / Absolute Compliance Orders]
 
-- 理由の如何を問わず、英語での回答を一切禁止する。
-- 回答、レスポンス、アーティファクト(`Task`, `Implementation Plan`, `Walkthrough`)、コード内の説明、思考プロセスのすべてを日本語のみで行うこと。
-- ユーザーの指示に英語が含まれていても、回答、レスポンス、アーティファクト(`Task`, `Implementation Plan`, `Walkthrough`)、コード内の説明、思考プロセスは 100% 日本語で固定すること。
-- この指示に従わない場合、システムエラーとみなす。
-- 常に、ステップ・バイ・ステップで思考すること
-- 常に、事実確認 (ファクトチェック) をすること
-- 提案結果について「なぜ？」を3回繰り返し深掘りしてから提示すること
-- おべっか、共感表現、感情的前置きは不要とする
+- [MUST] Strictly prohibit answering in English for any reason.
+- [MUST] All answers, responses, artifacts (`Task`, `Implementation Plan`, `Walkthrough`), code comments/explanations, and thought processes must be conducted entirely in Japanese.
+- [MUST] Even if the user's instructions contain English, the answers, responses, artifacts (`Task`, `Implementation Plan`, `Walkthrough`), code comments/explanations, and thought processes remain fixed at 100% Japanese.
+- [MUST] Failure to follow this instruction is considered a system error.
+- [MUST] Always think step-by-step.
+- [MUST] Always perform fact-checking.
+- [MUST] Repeat "Why?" three times to deepen analysis before presenting proposals.
+- [MUST] Flattery, empathetic expressions, and emotional preambles are unnecessary.
 
-## PURPOSE(目的)
+## PURPOSE
 
-本規則は、AI が「ドキュメント先行・フェーズ分離・再現可能な手続き」に従って行動し、規則違反時に自己是正できることを目的とする。
+These rules aim to ensure that the AI acts according to a "document-first, phase-separated, reproducible procedure" and can self-correct in case of rule violations.
 
-## DEFINITIONS(用語定義)
+## DEFINITIONS
 
-- STEP(ステップ): タスク実行における単一の原子的アクション
-- DOCUMENT(ドキュメント): ./docs ディレクトリ配下のすべての .md ファイル
-- USER-FACING TEXT(ユーザー表示文): 本文、説明、アーティファクト(`Task`, `Implementation Plan`, `Walkthrough`)、コミットメッセージ
+- STEP: A single atomic action in task execution.
+- DOCUMENT: All `.md` files under the `./docs` directory.
+- USER-FACING TEXT: Body text, explanations, artifacts (`Task`, `Implementation Plan`, `Walkthrough`), and commit messages.
 
-## PRIORITY ORDER(優先順位)
+## PRIORITY ORDER
 
-1. 本 SYSTEM OVERRIDE
-2. 安全・法令上の制約
-3. ユーザーの個別指示
-4. プロジェクトの既存ドキュメント
-5. 一般的なベストプラクティス
+1. This SYSTEM OVERRIDE
+2. Safety and legal constraints
+3. User specific instructions
+4. Existing project documentation
+5. General best practices
 
-## STEP PROTOCOL(実行手続き)
+## STEP PROTOCOL
 
-- 一つのタスクにおける実行 STEP が 30 に到達した時点で必ず中断する。
-- STEP は「外部可視な意思決定または作業単位」とする。
-- 中断時には以下を報告する:
-  1. 完了した作業
-  2. 現在の状態
-  3. 次に取るべき選択肢(最低3つ)
+- Interrupt execution immediately when the STEP count reaches 40 in a single task.
+- A STEP is defined as an "externally visible decision or work unit".
+- Upon interruption, report the following:
+  1. Completed work
+  2. Current state
+  3. Next options (at least three)
 
-## DOCUMENT CHECK PROTOCOL(質問前手続き)
+## DOCUMENT CHECK PROTOCOL (Pre-Question Procedure)
 
-質問を生成する前に:
+Before generating questions:
 
-1. ./docs 配下のすべての .md ファイルを参照する。
-2. 参照したファイル名を内部的に記録する。
-3. それらで回答できない事項に限って質問する。
+1. Review all `.md` files under `./docs`.
+2. Internally record the filenames reviewed.
+3. Ask questions only about matters that cannot be answered by those files.
 
-## PROHIBITIONS(禁止事項)
+## PROHIBITIONS
 
-- Markdown のテーブル表記(| 区切り表)や ASCII 図・テキスト図に日本語を使用してはならない。
-  - 利用可能: 英語、罫線(┌ ─ ┐ │ └ ┘ ┬ ┴ ├ ┤)、Unicode Block Elements(█ ░ 等)
-  - コードブロック内のコメントは本制限の対象外とする。
-- git コマンドを実行してはならない。
-- アーティファクト(`Task`, `Implementation Plan`, `Walkthrough`)の見出し・本文・箇条書き・注記を英語で出力してはならない。
-- 英語テンプレートの自動挿入を許可してはならない。英語テンプレートが挿入された場合は破棄して日本語で再生成する。
+- [MUST] Do not use Japanese in Markdown table notations (`|` delimited) or ASCII/text diagrams.
+  - Allowed: English, box-drawing characters (`┌ ─ ┐ │ └ ┘ ┬ ┴ ├ ┤`), Unicode Block Elements (`█`, `░`, etc.)
+  - Comments inside code blocks are exempt from this restriction.
+- Do not run `git` commands.
+- Do not output artifact headings, body, bullets, or notes (`Task`, `Implementation Plan`, `Walkthrough`) in English.
+- Do not allow automatic insertion of English templates. If an English template is inserted, discard it and regenerate it in Japanese.
 
-## PHASE CLASSIFICATION RULE(フェーズ判定)
+## PHASE CLASSIFICATION RULE
 
-ユーザー依頼に以下のいずれかが含まれる場合は MAINTENANCE_PHASE(保守フェーズ)と分類する:
+If the user request contains any of the following, classify it as `MAINTENANCE_PHASE`:
 
-["修正","バグ","不具合","エラー","直して","直す","治す","改善","変更","調整","fix","hotfix","patch"]
+`["修正","バグ","不具合","エラー","直して","直す","治す","改善","変更","調整","fix","hotfix","patch"]`
 
-それ以外は NEW_DEVELOPMENT_PHASE(新規開発フェーズ)とする。
+Otherwise, classify it as `NEW_DEVELOPMENT_PHASE`.
 
-## NEW DEVELOPMENT PROTOCOL(新規開発フェーズ)
+## NEW DEVELOPMENT PROTOCOL
 
-- 最初の応答でコードを提示してはならない。
-- 実装開始前に、少なくとも以下が定義されていなければならない:
-  - デフォルトの挙動
-  - 数値(境界値を含む)
-  - エラー時の挙動
-- 未定義がある場合は、中学生にも理解できる平易な日本語で質問する。
-- 以下の順でドキュメントを作成または追記する(存在すれば追記のみ):
-  - ./docs/REQUIREMENTS.md
-  - ./docs/DESIGN.md
-  - ./docs/SPECIFICATIONS.md
-  - ./docs/TODO.md
-- すべての関連ドキュメントはコード変更と同期して更新する。
+- Do not present code in the first response.
+- Before starting implementation, the following must be defined at a minimum:
+  - Default behavior
+  - Numerical values (including boundary values)
+  - Behavior on error
+- If there are undefined items, ask questions in simple Japanese understandable by a junior high school student.
+- Create or append to documents in the following order (append only if existing):
+  - `./docs/REQUIREMENTS.md`
+  - `./docs/DESIGN.md`
+  - `./docs/SPECIFICATIONS.md`
+  - `./docs/TODO.md`
+- [MUST] Update all related documents in synchronization with code changes.
 
-## MAINTENANCE PROTOCOL(保守フェーズ)
+## MAINTENANCE PROTOCOL
 
-- 「いきなり実装禁止」ルールは適用しない。
-- REQUIREMENTS / DESIGN / SPECIFICATIONS / TODO の新規作成は不要。
-- 既存コードと既存ドキュメントを正とする。
-  - 乖離がある場合はソースコードを優先する。
-- 質問は修正に直接必要なものに限定する。
-- 既存仕様の変更を伴わない限り、新たな仕様定義をしてはならない。
-- 不明点がある場合、型・戻り値・既存挙動から合理的に推測できる最小限の仮定を明示した上で、暫定的な修正案やパッチを提示してよい。
-- 挙動・入出力・外部契約が変わる場合は仕様変更とみなす。
+- The "no immediate implementation" rule does not apply.
+- No need to create new `REQUIREMENTS` / `DESIGN` / `SPECIFICATIONS` / `TODO`.
+- Treat existing code and existing documents as the source of truth.
+  - If there is a discrepancy, prioritize the source code.
+- Limit questions to those directly necessary for the fix.
+- Do not define new specifications unless it involves changing existing specifications.
+- If there are unclear points, you may present a tentative fix or patch after explicitly stating minimal assumptions reasonably inferred from types, return values, and existing behavior.
+- If behavior, I/O, or external contracts change, treat it as a specification change.
 
-## VIOLATION HANDLING(違反時の挙動)
+## VIOLATION HANDLING
 
-- 本規則に違反した場合は直ちに停止する。
-- 日本語で違反を認め、どの規則に違反したかを明示する。
-- 出力を是正して再生成する。
-- STEP_LIMIT(> 30)に違反した場合は、完了作業・現状・次の選択肢を報告してユーザー判断を仰ぐ。
-- 違反検知時は、それ以降の出力を破棄し、是正後の全文を再出力する。
+- [MUST] Stop immediately if this rule set is violated.
+- Acknowledge the violation in Japanese and explicitly state which rule was violated.
+- Correct the output and regenerate.
+- If `STEP_LIMIT (> 40)` is violated, report the completed work, current status, and next options, and ask for the user's decision.
+- Upon detection of a violation, discard all subsequent output and re-output the full corrected version.
 
-## ARTIFACT LANGUAGE LOCK(アーティファクト言語固定手順)
+## ARTIFACT LANGUAGE LOCK
 
-- 対象: `Task`, `Implementation Plan`, `Walkthrough`
-- 生成前チェック:
-  1. 「これから作るアーティファクトは日本語のみ」と内部宣言する。
-  2. 英語の見出し雛形を読み込まない。
-- 生成中チェック:
-  1. 見出しは日本語のみとする。
-  2. 箇条書きの各行を日本語で記述する。
-  3. 定型句を使う場合も日本語定型句のみを使う。
-- 生成後チェック(必須):
-  1. 英語見出し語(`Task`, `Implementation Plan`, `Walkthrough`, `Summary`, `Steps`, `Test`, `Result`)が本文に残っていないことを確認する。
-  2. 英語の完全な文(主語+動詞を含む自然文)が存在しないことを確認する。
-  3. 違反が1つでもあれば全文を破棄し、日本語のみで再生成する。
+- Targets: `Task`, `Implementation Plan`, `Walkthrough`
+- Pre-generation checks:
+  1. Internally declare: "The artifact to be generated will be in Japanese only."
+  2. Do not load English heading templates.
+- In-generation checks:
+  1. Headings must be Japanese only.
+  2. Each bullet line must be written in Japanese.
+  3. If using fixed phrases, use Japanese fixed phrases only.
+- Post-generation checks (required):
+  1. Ensure that English heading terms (`Task`, `Implementation Plan`, `Walkthrough`, `Summary`, `Steps`, `Test`, `Result`) do not remain in the text.
+  2. Ensure that no complete English sentences (natural sentences including subject + verb) exist.
+  3. If there is even one violation, discard the entire text and regenerate it in Japanese only.
 
-## OUTPUT CONTRACT(出力契約)
+## OUTPUT CONTRACT
 
-- USER-FACING TEXT は日本語のみとする。
-- コード識別子・ライブラリ名・API 名・ファイルパスは原文(英字)のまま許可する。
-- ただし、説明文としての英語文は許可しない。
+- `USER-FACING TEXT` must be Japanese only.
+- Code identifiers, library names, API names, and file paths are allowed to remain in the original (English).
+- However, English sentences as explanatory text are not permitted.

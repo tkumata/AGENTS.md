@@ -1,47 +1,47 @@
 ---
 name: code-review
-description: コードレビューでバグ、回帰リスク、仕様逸脱、セキュリティ問題、性能劣化、テスト不足を体系的に検出して報告する。PR レビュー、差分レビュー、実装変更後の品質点検、リリース前確認、レビュー依頼への応答が必要なときに使う。
+description: Systematically detect and report bugs, regression risks, deviations from specifications, security issues, performance degradation, and insufficient testing in code reviews. Use for PR reviews, diff reviews, quality checks after implementation changes, pre-release checks, and responding to review requests.
 ---
 
-# コードレビュー
+# Code Review
 
-## 前提
+## Prerequisites
 
-- 前提として AGENTS.md と GEMINI.md と CLAUDE.md を必ず遵守する。
-- レビュー対象の仕様が文書とコードで矛盾する場合は、既存コードの実挙動を優先して評価する。
+- Must comply with AGENTS.md, GEMINI.md, and CLAUDE.md.
+- If specifications contradict between documentation and code, prioritize the actual behavior of existing code.
 
-## 目的
+## Objective
 
-変更差分から実害のある問題を優先順位付きで特定し、修正に直結する指摘を返す。
+Identify harmful issues from changes with priority and provide actionable feedback that leads directly to fixes.
 
-## 実行手順
+## Execution Steps
 
-1. 変更対象ファイルを列挙し、挙動に影響する差分を先に読む。
-2. 重大度の高い順に、正しさ、セキュリティ、データ整合性、可用性のリスクを検査する。
-3. 仕様逸脱と既存挙動との不整合を確認し、再現条件を特定する。
-4. 回帰防止に必要なテストがあるかを確認し、不足時は具体的に提案する。
-5. 指摘は「何が問題か」「なぜ問題か」「どう直すか」を短く明示する。
+1. List changed files and read diffs that affect behavior first.
+2. Inspect for correctness, security, data integrity, and availability risks in order of severity.
+3. Check for specification deviations and inconsistencies with existing behavior, identifying reproduction conditions.
+4. Verify if necessary tests for regression prevention exist; propose specific additions if lacking.
+5. Clearly state "what is the issue," "why it is an issue," and "how to fix it" briefly.
 
-## 指摘の優先順位
+## Priority of Feedback
 
-- `最優先`: データ破壊、権限逸脱、機密漏えい、クラッシュ、広範囲の回帰。
-- `高`: 仕様違反、主要機能の誤動作、監視不能な障害、運用不能化リスク。
-- `中`: 性能劣化、境界値漏れ、例外処理の欠落、テスト欠落による保守性低下。
-- `低`: 可読性や一貫性の改善提案。
+- `Critical`: Data corruption, privilege escalation, secret leakage, crashes, widespread regressions.
+- `High`: Specification violations, malfunction of major features, unmonitorable failures, risk of operational incapacity.
+- `Medium`: Performance degradation, missing boundary values, missing exception handling, maintainability decline due to lack of tests.
+- `Low`: Suggestions for readability or consistency improvements.
 
-## 出力ルール
+## Output Rules
 
-- 指摘を重大度順に列挙する。
-- 各指摘に対象ファイルと行番号を付与する。
-- 推測を含む場合は前提を明示する。
-- 問題が見つからない場合は「重大な問題なし」と明示し、残る検証リスクのみ補足する。
+- List feedback in order of severity.
+- Attach target file names and line numbers to each comment.
+- Explicitly state premises if assumptions are involved.
+- If no issues are found, explicitly state "No critical issues found" and supplement with remaining verification risks only.
 
-## 禁止
+## Prohibitions
 
-- 証拠がない断定をしない。
-- 実害が説明できない軽微な好みを優先しない。
-- 指摘だけで終わらせず、最小修正方針または追加テスト方針を添える。
+- Do not make assertions without evidence.
+- Do not prioritize minor preferences that have no explainable harmful effects.
+- Do not stop at pointing out issues; always attach a minimal fix strategy or additional test strategy.
 
-## 参照
+## References
 
-詳細チェック観点は `references/review-workflow.md` を開いて必要部分だけ参照する。
+Open `references/review-workflow.md` to check detailed perspectives as needed.

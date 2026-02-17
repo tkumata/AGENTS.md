@@ -1,60 +1,60 @@
 ---
 name: embedded-c-coding
-description: マイコンボード開発における組み込み C 言語の設計・実装・レビュー・リファクタ・テストを支援する。周辺ドライバ、割込み、タイミング制御、低消費電力、HAL 分離、ログ設計、Arduino IDE や Raspberry Pi Pico SDK などの環境が関わる依頼で使う。
+description: Supports design, implementation, review, refactoring, and testing of embedded C for microcontroller boards. Use for tasks involving peripheral drivers, interrupts, timing control, low power consumption, HAL separation, log design, Arduino IDE, or Raspberry Pi Pico SDK.
 ---
 
-# 組み込み C コーディング
+# Embedded C Coding
 
-## 前提
+## Prerequisites
 
-- 前提として AGENTS.md と GEMINI.md と CLAUDE.md を必ず遵守すること。
+- Must comply with AGENTS.md, GEMINI.md, and CLAUDE.md.
 
-## 概要
+## Overview
 
-マイコンボード向け C 言語実装を、最小の前提確認で安全に進めるための指針を提供する。
-既存コード、既存ドキュメント、ボード固有の慣習を最優先に合わせる。
+Provides guidelines for safely proceeding with C implementation for microcontroller boards with minimal prerequisite checks.
+Prioritize existing code, documentation, and board-specific conventions.
 
-## 進め方
+## Process
 
-1. 対象ボードと開発環境を確認する。未確定なら仮定を明示する。
-2. 目的と入出力、タイミング要件、割込み要件、低消費電力要件を確認する。
-3. 既存コードの命名、モジュール分割、エラー方針、ログ方針に合わせる。
-4. 変更範囲を最小化し、ユニットテストとオンターゲット確認の順で進める。
+1. Confirm target board and development environment. State assumptions if undefined.
+2. Confirm objectives, I/O, timing requirements, interrupt requirements, and low-power requirements.
+3. Align with existing naming conventions, module separation, error policies, and logging policies.
+4. Minimize changes and proceed with unit tests followed by on-target verification.
 
-## コーディング指針
+## Coding Guidelines
 
-- `stdint.h` と `stdbool.h` を基本とし、サイズ明示型を用いる。
-- `volatile` はハードウェアレジスタと ISR 共有変数に限定し、コメントで理由を示す。
-- `static` で内部結合を明確にし、公開 API を最小化する。
-- 副作用のある式やマクロは避け、必要なら関数化する。
-- ループと分岐の最悪実行時間が読み取れる構造にする。
+- Use `stdint.h` and `stdbool.h` by default; use fixed-width integer types.
+- Limit `volatile` usage to hardware registers and ISR shared variables, documenting reasons in comments.
+- Use `static` to clarify internal linkage and minimize public APIs.
+- Avoid expressions or macros with side effects; use functions if necessary.
+- Structure loops and branches so that worst-case execution time is readable.
 
-## 割込みと同時実行
+## Interrupts and Concurrency
 
-- ISR は短く保ち、重い処理はフラグやリングバッファ経由でメインに移す。
-- 共有データはクリティカルセクションを最小化し、必要ならアトミックまたは割込み禁止で保護する。
-- レースが疑われる箇所は明示的にコメントし、再現条件を残す。
+- Keep ISRs short; offload heavy processing to the main loop via flags or ring buffers.
+- Minimize critical sections for shared data, protecting with atomics or interrupt disabling if necessary.
+- Explicitly comment on suspected race conditions and record reproduction conditions.
 
-## 時間とタイミング
+## Time and Timing
 
-- タイムアウトと周期処理は単調増加カウンタを基準にする。
-- 単位を明示し、必要なら ms/us/clock に変換関数を作る。
+- Base timeouts and periodic processing on monotonic counters.
+- Explicitly state units and create conversion functions (ms/us/clock) if necessary.
 
-## ログとエラー
+## Logging and Error Handling
 
-- エラーは戻り値で表現し、失敗時にログを残す。
-- ログは抑制可能にし、量産ビルドで無効化できる設計にする。
+- Express errors via return values and log failures.
+- Design logging to be suppressible and capable of being disabled in production builds.
 
-## 移植性
+## Portability
 
-- ボード依存部は HAL 層に閉じ込め、上位ロジックを分離する。
-- Arduino IDE / Pico SDK などの環境差分は薄いラッパで吸収する。
+- Encapsulate board-dependent parts within a HAL layer and separate upper-level logic.
+- Absorb environment differences (e.g., Arduino IDE, Pico SDK) with thin wrappers.
 
-## テスト
+## Testing
 
-- 可能ならホスト上のユニットテストと、オンターゲットのスモークテストを併用する。
-- クリティカルな境界条件は再現入力をコメントで残す。
+- Combine host-based unit tests and on-target smoke tests whenever possible.
+- Document critical boundary conditions with reproduction inputs in comments.
 
-## 参照
+## References
 
-具体的な実装レシピとテンプレートは `references/embedded-workflows.md` を確認する。
+Check `references/embedded-workflows.md` for specific implementation recipes and templates.

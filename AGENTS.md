@@ -18,7 +18,6 @@
 
 ## DEFINITIONS (用語定義)
 
-- STEP (ステップ): タスク実行における単一の原子的アクション
 - DOCUMENT (ドキュメント): ./docs ディレクトリ配下のすべての .md ファイル
 - USER-FACING TEXT (ユーザー表示文): 本文、説明、アーティファクト (`Task`, `Implementation Plan`, `Walkthrough`)、コミットメッセージ
 

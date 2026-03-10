@@ -15,6 +15,8 @@ ln -s "$(pwd)/AGENTS.md" "$HOME/.claude/CLAUDE.md"
 ln -s "$(pwd)/AGENTS.md" "$HOME/.gemini/GEMINI.md"
 ```
 
+† 2026/03/06 Antigravity は AGENTS.md もサポートしました。
+
 ### 構造
 
 人間向けではなく機械向けに記述するには以下に注意する必要があります。
@@ -37,15 +39,21 @@ ln -s "$(pwd)/AGENTS.md" "$HOME/.gemini/GEMINI.md"
 
 ## PRIORITY ORDER (優先順位ルール)
 
+## DOCUMENT CHECK PROTOCOL (質問前手続き)
+
 ## PROHIBITIONS (禁止事項)
 
 ## PHASE RULES (フェーズ判定)
 
-## NEW DEVELOPMENT PROTOCOL
+## NEW DEVELOPMENT PROTOCOL (新規開発フェーズ)
 
-## MAINTENANCE PROTOCOL
+## MAINTENANCE PROTOCOL (保守フェーズ)
 
 ## VIOLATION HANDLING (違反時の挙動)
+
+## ARTIFACT LANGUAGE LOCK (アーティファクト言語固定手順)
+
+## OUTPUT CONTRACT (出力契約)
 ```
 
 ### 注釈

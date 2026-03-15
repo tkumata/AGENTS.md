@@ -1,5 +1,6 @@
 .DS_Store
+.skill-creator-hacks/
 .vscode/
+.venv/
 *.swp
 Thumbs.db
-.venv/

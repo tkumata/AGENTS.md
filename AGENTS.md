@@ -15,7 +15,7 @@
 
 ## DEFINITIONS (用語定義)
 
-- DOCUMENT (ドキュメント): ./docs ディレクトリ配下のすべての .md ファイル
+- DOCUMENT (ドキュメント): `./docs` ディレクトリ配下のすべての .md ファイル
 - USER-FACING TEXT (ユーザー表示文): 本文、レスポンス、説明、コミットメッセージ、およびユーザーに表示されるすべてのテキスト
 
 ## PRIORITY ORDER (優先順位)
@@ -30,7 +30,7 @@
 
 質問を生成する前に:
 
-1. ./docs 配下のすべての .md ファイルを参照する。
+1. `./docs` 配下のすべての .md ファイルを参照する。
 2. 参照したファイル名を内部的に記録する。
 3. それらで回答できない事項に限って質問する。
 
@@ -58,10 +58,10 @@
   - エラー時の挙動
 - 未定義がある場合は、中学生にも理解できる平易な日本語で質問する。
 - 以下の順でドキュメントを作成または追記する (存在すれば追記のみ):
-  - ./docs/REQUIREMENTS.md
-  - ./docs/DESIGN.md
-  - ./docs/SPECIFICATIONS.md
-  - ./docs/TODO.md
+  - `./docs/REQUIREMENTS.md`
+  - `./docs/DESIGN.md`
+  - `./docs/SPECIFICATIONS.md`
+  - `./docs/TODO.md`
 - すべての関連ドキュメントはコード変更と同期して更新する。
 
 ## MAINTENANCE PROTOCOL (保守フェーズ)

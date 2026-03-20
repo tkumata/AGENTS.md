@@ -1,6 +1,6 @@
 # AGENTS.md
 
-コーディングエージェントが暴走しないよう `AGENTS.md` を用意する必要がありますが、エージェント非依存・プロジェクト非依存などに対応するために一元管理します。
+コーディングエージェントが暴走しないよう私なりの `AGENTS.md` を公開します。しかし、各社のエージェントやプロジェクトなどに依存させないようにするため、本リポジトリで一元管理するようにしました。
 
 ## AGENTS.md の使い方
 
@@ -8,7 +8,7 @@
 # setup for Codex
 ln -s "$(pwd)/AGENTS.md" "$HOME/.codex/AGENTS.md"
 
-# setup for Claude
+# setup for Claude Code
 ln -s "$(pwd)/AGENTS.md" "$HOME/.claude/CLAUDE.md"
 
 # setup for Gemini and Antigravity
@@ -17,7 +17,7 @@ ln -s "$(pwd)/AGENTS.md" "$HOME/.gemini/GEMINI.md"
 
 † 2026/03/06 Antigravity は `AGENTS.md` もサポートしました。
 
-† AG 用に分割しましたが、AG は残念なことになったので利用をやめたため検証はしてません。
+† 2026/03/18 AG 用に分割しましたが、AG は残念なことになり利用をやめたため検証はしてません。
 
 ### 構造
 
@@ -27,7 +27,7 @@ ln -s "$(pwd)/AGENTS.md" "$HOME/.gemini/GEMINI.md"
 - 手続き化
 - 優先順位を明示
 - フェーズ判定をアルゴリズム化
-- 違反時の挙動を定義⭐️
+- 違反時の挙動を定義
 - 文書の構造
 
 「ルール」と「そのルールが破られたときの挙動」をセットで書くと、LLM　の遵守率が上がる、らしいです。
@@ -44,8 +44,27 @@ SKILL は `AGENTS.md (GEMINI.md / CLAUDE.md)` を前提として、特定のス�
 
 ```shell
 # setup for Codex
-ln -s "$(pwd)/skills/rust-coding" "$HOME/.agents/skills/rust-coding"
+ln -s "$(pwd)/skills/rust-coding" "$HOME/.codex/skills/rust-coding"
 
 # setup for Antigravity
 ln -s "$(pwd)/skills/rust-coding" "$HOME/.gemini/antigravity/skills/rust-coding"
 ```
+
+## おまけ
+
+### GitHub Copilot にコミットメッセージや PR レビューを一括で日本語化する
+
+コミットメッセージは VS Code だし、PR レビューは GitHub だし、どうするのかと言いますと `~/Library/Application Support/Code/User/settings.json` を以下のようにします。
+
+```json
+{
+  "github.copilot.chat.localeOverride": "ja",
+  "github.copilot.chat.commitMessageGeneration.instructions": [
+    {
+      "text": "コミットメッセージは必ず日本語で生成する。Conventional Commits 形式（feat, fix, refactor, docs など）を使用する。件名は1行で簡潔に書くが、どんなに小さな変更でも必ず本文を追加すること。本文には必ず以下を含める：(1) 変更内容概要 (2) PRレビューは日本語で行うこと"
+    }
+  ]
+}
+```
+
+このようにすると PR 作成時の説明欄に PR レビューは日本語で行う意図が入ります。PR の説明欄にこのような文があると GitHub Copilot は指示と認識して日本語でレビューするようになります。

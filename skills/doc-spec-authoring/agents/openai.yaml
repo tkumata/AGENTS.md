@@ -1,4 +1,0 @@
-interface:
-  display_name: "文書仕様作成"
-  short_description: "要件定義書・設計書・仕様書の作成、レビュー、改訂を一貫支援"
-  default_prompt: "要件定義書と仕様書の作成、レビュー、更新を支援して。"

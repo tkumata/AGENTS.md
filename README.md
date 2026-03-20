@@ -36,20 +36,6 @@ ln -s "$(pwd)/AGENTS.md" "$HOME/.gemini/GEMINI.md"
 
 Google Antigravity の日本語アーティファクト生成が全く安定しないので、言語に関する指示は最上部に移動しました。また、禁止事項にもアーティファクトについての記述を追加しました。
 
-## SKILL の使い方
-
-SKILL は `AGENTS.md (GEMINI.md / CLAUDE.md)` を前提として、特定のスキルセットを定義したものです。
-
-例: Rust のコーディング
-
-```shell
-# setup for Codex
-ln -s "$(pwd)/skills/rust-coding" "$HOME/.codex/skills/rust-coding"
-
-# setup for Antigravity
-ln -s "$(pwd)/skills/rust-coding" "$HOME/.gemini/antigravity/skills/rust-coding"
-```
-
 ## おまけ
 
 ### GitHub Copilot にコミットメッセージや PR レビューを一括で日本語化する

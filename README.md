@@ -47,7 +47,7 @@ Google Antigravity の日本語アーティファクト生成が全く安定し�
   "github.copilot.chat.localeOverride": "ja",
   "github.copilot.chat.commitMessageGeneration.instructions": [
     {
-      "text": "コミットメッセージは必ず日本語で生成する。Conventional Commits 形式（feat, fix, chore, refactor, docs など）を使用する。件名は1行で簡潔に書くが、どんなに小さな変更でも必ず本文を追加すること。本文には必ず以下を含める：(1) PRタイトル (2) 変更内容の概要 (3) 「<!-- PRレビューは日本語で行うこと -->」というコメント"
+      "text": "コミットメッセージは必ず日本語で生成する。Conventional Commits 形式（feat, fix, chore, refactor, docs など）を使用する。件名は1行で簡潔に書くが、どんなに小さな変更でも必ず本文を追加すること。本文には必ず以下を含める：(1) 変更内容の概要 (2) 「<!-- PRレビューは日本語で行うこと -->」というコメント"
     }
   ]
 }

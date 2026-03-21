@@ -17,7 +17,7 @@ ln -s "$(pwd)/AGENTS.md" "$HOME/.gemini/GEMINI.md"
 
 † 2026/03/06 Antigravity は `AGENTS.md` もサポートしました。
 
-† 2026/03/18 AG 用に分割しましたが、AG は残念なことになり利用をやめたため検証はしてません。
+† 2026/03/18 AG 用に分割しましたが、AG というか AI Pro プランは残念なことになり利用をやめたため検証はしてません。
 
 ### 構造
 
@@ -38,19 +38,19 @@ Google Antigravity の日本語アーティファクト生成が全く安定し�
 
 ## おまけ
 
-### GitHub Copilot にコミットメッセージや PR レビューを一括で日本語化する
+### GitHub Copilot を一括で日本語化する
 
-コミットメッセージは VS Code だし、PR レビューは GitHub だし、どうするのかと言いますと `~/Library/Application Support/Code/User/settings.json` を以下のようにします。
+コミットメッセージや PR レビューのコメントを一括で日本語化します。コミットメッセージは VS Code 上だし、PR レビューは GitHub 上だし、一括設定でどうするのかと言いますと `~/Library/Application Support/Code/User/settings.json` を以下のようにします。
 
 ```json
 {
   "github.copilot.chat.localeOverride": "ja",
   "github.copilot.chat.commitMessageGeneration.instructions": [
     {
-      "text": "コミットメッセージは必ず日本語で生成する。Conventional Commits 形式（feat, fix, chore, refactor, docs など）を使用する。件名は1行で簡潔に書くが、どんなに小さな変更でも必ず本文を追加すること。本文には必ず以下を含める：(1) 変更内容の概要 (2) PRレビューは日本語で行うこと"
+      "text": "コミットメッセージは必ず日本語で生成する。Conventional Commits 形式（feat, fix, chore, refactor, docs など）を使用する。件名は1行で簡潔に書くが、どんなに小さな変更でも必ず本文を追加すること。本文には必ず以下を含める：(1) 変更内容の概要 (2) 「<!-- PRレビューは日本語で行うこと -->」というコメント"
     }
   ]
 }
 ```
 
-このようにすると PR 作成時の説明欄に PR レビューは日本語で行う意図が入ります。PR の説明欄にこのような文があると GitHub Copilot は指示と認識して日本語で PR レビューするようになります。
+このようにすると PR 作成時の説明欄に PR レビューは日本語で行う意図が入ります。PR の説明欄にこのような文があると GitHub Copilot は指示と認識して日本語で PR レビューするようになります。これなら GitHub の設定で PR レビューを自動的に発火させても安心です。

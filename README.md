@@ -1,6 +1,6 @@
 # AGENTS.md
 
-コーディングエージェントが暴走しないよう AGENTS.md を用意する必要がありますが、エージェント非依存・プロジェクト非依存などに対応するために一元管理します。
+コーディングエージェントが暴走しないよう私なりの `AGENTS.md` を公開します。しかし、各社のエージェントやプロジェクトなどに依存させないようにするため、本リポジトリで一元管理するようにしました。
 
 ## AGENTS.md の使い方
 
@@ -8,14 +8,16 @@
 # setup for Codex
 ln -s "$(pwd)/AGENTS.md" "$HOME/.codex/AGENTS.md"
 
-# setup for Claude
+# setup for Claude Code
 ln -s "$(pwd)/AGENTS.md" "$HOME/.claude/CLAUDE.md"
 
 # setup for Gemini and Antigravity
 ln -s "$(pwd)/AGENTS.md" "$HOME/.gemini/GEMINI.md"
 ```
 
-† 2026/03/06 Antigravity は AGENTS.md もサポートしました。
+† 2026/03/06 Antigravity は `AGENTS.md` もサポートしました。
+
+† 2026/03/18 AG 用に分割しましたが、AG は残念なことになり利用をやめたため検証はしてません。
 
 ### 構造
 
@@ -25,51 +27,30 @@ ln -s "$(pwd)/AGENTS.md" "$HOME/.gemini/GEMINI.md"
 - 手続き化
 - 優先順位を明示
 - フェーズ判定をアルゴリズム化
-- 違反時の挙動を定義⭐️
+- 違反時の挙動を定義
 - 文書の構造
 
-「ルール」と「そのルールが破られたときの挙動」をセットで書くと、LLM　の遵守率が上がる、らしいです。
-
-```markdown
-# SYSTEM OVERRIDE
-
-## PURPOSE (目的)
-
-## DEFINITIONS (用語定義)
-
-## PRIORITY ORDER (優先順位ルール)
-
-## DOCUMENT CHECK PROTOCOL (質問前手続き)
-
-## PROHIBITIONS (禁止事項)
-
-## PHASE RULES (フェーズ判定)
-
-## NEW DEVELOPMENT PROTOCOL (新規開発フェーズ)
-
-## MAINTENANCE PROTOCOL (保守フェーズ)
-
-## VIOLATION HANDLING (違反時の挙動)
-
-## ARTIFACT LANGUAGE LOCK (アーティファクト言語固定手順)
-
-## OUTPUT CONTRACT (出力契約)
-```
+「ルール」と「そのルールが破られたときの挙動」をセットで書くと、LLM の遵守率が上がる、らしいです。
 
 ### 注釈
 
 Google Antigravity の日本語アーティファクト生成が全く安定しないので、言語に関する指示は最上部に移動しました。また、禁止事項にもアーティファクトについての記述を追加しました。
 
-## SKILL の使い方
+## おまけ
 
-SKILL は AGENTS.md (GEMINI.md / CLAUDE.md) を前提として、特定のスキルセットを定義したものです。
+### GitHub Copilot にコミットメッセージや PR レビューを一括で日本語化する
 
-例: Rust のコーディング
+コミットメッセージは VS Code だし、PR レビューは GitHub だし、どうするのかと言いますと `~/Library/Application Support/Code/User/settings.json` を以下のようにします。
 
-```shell
-# setup for Codex
-ln -s "$(pwd)/skills/rust-coding" "$HOME/.agents/skills/rust-coding"
-
-# setup for Antigravity
-ln -s "$(pwd)/skills/rust-coding" "$HOME/.gemini/antigravity/skills/rust-coding"
+```json
+{
+  "github.copilot.chat.localeOverride": "ja",
+  "github.copilot.chat.commitMessageGeneration.instructions": [
+    {
+      "text": "コミットメッセージは必ず日本語で生成する。Conventional Commits 形式（feat, fix, chore, refactor, docs など）を使用する。件名は1行で簡潔に書くが、どんなに小さな変更でも必ず本文を追加すること。本文には必ず以下を含める：(1) 変更内容の概要 (2) PRレビューは日本語で行うこと"
+    }
+  ]
+}
 ```
+
+このようにすると PR 作成時の説明欄に PR レビューは日本語で行う意図が入ります。PR の説明欄にこのような文があると GitHub Copilot は指示と認識して日本語で PR レビューするようになります。

@@ -1,23 +1,25 @@
 # AGENTS.md
 
-コーディングエージェントが暴走しないよう私なりの `AGENTS.md` を公開します。しかし、各社のエージェントやプロジェクトなどに依存させないようにするため、本リポジトリで一元管理するようにしました。
+エージェントやプロジェクトなどに依存しない最低限のルールを作りました。
 
 ## AGENTS.md の使い方
 
 ```shell
-# setup for Codex
+# setup for Codex (CLI and App)
 ln -s "$(pwd)/AGENTS.md" "$HOME/.codex/AGENTS.md"
 
 # setup for Claude Code
 ln -s "$(pwd)/AGENTS.md" "$HOME/.claude/CLAUDE.md"
 
-# setup for Gemini and Antigravity
-ln -s "$(pwd)/AGENTS.md" "$HOME/.gemini/GEMINI.md"
+# setup for Copilot CLI
+ln -s "$(pwd)/AGENTS.md" "$HOME/.copilot/copilot-instruction.md"
 ```
 
 † 2026/03/06 Antigravity は `AGENTS.md` もサポートしました。
 
 † 2026/03/18 AG 用に分割しましたが、AG というか AI Pro プランは残念なことになり利用をやめたため検証はしてません。
+
+† 2026/04/04 AG や Gemini を考慮することを諦めました。
 
 ### 構造
 
@@ -32,22 +34,18 @@ ln -s "$(pwd)/AGENTS.md" "$HOME/.gemini/GEMINI.md"
 
 「ルール」と「そのルールが破られたときの挙動」をセットで書くと、LLM の遵守率が上がる、らしいです。
 
-### 注釈
-
-Google Antigravity の日本語アーティファクト生成が全く安定しないので、言語に関する指示は最上部に移動しました。また、禁止事項にもアーティファクトについての記述を追加しました。
-
 ## おまけ
 
-### GitHub Copilot を一括で日本語化する
+### GitHub Copilot の日本語化 (1)
 
-コミットメッセージや PR レビューのコメントを一括で日本語化します。コミットメッセージは VS Code 上だし、PR レビューは GitHub 上だし、一括設定でどうするのかと言いますと `~/Library/Application Support/Code/User/settings.json` を以下のようにします。
+コミットメッセージやレビューコメントを一括で日本語化します。コミットメッセージは VS Code 上だし、レビューコメントは GitHub 上だし、一括設定でどうするのかと言いますと `~/Library/Application Support/Code/User/settings.json` を以下のようにします。
 
 ```json
 {
   "github.copilot.chat.localeOverride": "ja",
   "github.copilot.chat.commitMessageGeneration.instructions": [
     {
-      "text": "コミットメッセージは必ず日本語で生成する。Conventional Commits 形式（feat, fix, chore, refactor, docs など）を使用する。件名は1行で簡潔に書くが、どんなに小さな変更でも必ず本文を追加すること。本文には必ず以下を含める：(1) 変更内容の概要 (2) 「<!-- PRレビューは日本語で行うこと -->」というコメント"
+      "text": "ミットメッセージは必ず日本語で生成すること。必ず Conventional Commits 形式を使用し、以下の基準で prefix を選択すること：\n- feat: 新機能の追加\n- fix: バグ修正\n- docs: ドキュメントのみの変更\n- refactor: 動作を変えないコードの整理・リネーム・移動\n- chore: ビルド設定・依存関係・ツール類の変更\n- test: テストの追加・修正\n- style: フォーマット・インデントなど動作に影響しない変更\nfeat と docs は本当に該当する場合のみ使用し、安易に選ばないこと。件名は1行で簡潔に書き、本文に変更内容の概要を含めること。本文最後に <!-- PR レビューは日本語で行うこと --> を追記すること。"
     }
   ]
 }

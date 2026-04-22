@@ -1,53 +1,32 @@
 # AGENTS.md
 
-コーディングエージェントが暴走しないよう私なりの `AGENTS.md` を公開します。しかし、各社のエージェントやプロジェクトなどに依存させないようにするため、本リポジトリで一元管理するようにしました。
+各社のエージェントや個々のプロジェクトに依存しない共通部分をハーネスエンジニアリングの基礎として記述しました。このような書き方をすることで各サブエージェントが協業しました。Codex と Copilot で確認してます。
+
+Codex の Plus プランの場合、5時間制限をあっという間に使い切るので注意が必要です。
 
 ## AGENTS.md の使い方
 
 ```shell
-# setup for Codex
+# setup for Codex (CLI and App)
 ln -s "$(pwd)/AGENTS.md" "$HOME/.codex/AGENTS.md"
 
 # setup for Claude Code
 ln -s "$(pwd)/AGENTS.md" "$HOME/.claude/CLAUDE.md"
 
-# setup for Gemini and Antigravity
-ln -s "$(pwd)/AGENTS.md" "$HOME/.gemini/GEMINI.md"
+# setup for Copilot CLI
+ln -s "$(pwd)/AGENTS.md" "$HOME/.copilot/copilot-instruction.md"
 ```
 
-† 2026/03/06 Antigravity は `AGENTS.md` もサポートしました。
+## おまけ: GitHub Copilot の日本語化
 
-† 2026/03/18 AG 用に分割しましたが、AG というか AI Pro プランは残念なことになり利用をやめたため検証はしてません。
-
-### 構造
-
-人間向けではなく機械向けに記述するには以下に注意する必要があります。
-
-- 曖昧語を減らす
-- 手続き化
-- 優先順位を明示
-- フェーズ判定をアルゴリズム化
-- 違反時の挙動を定義
-- 文書の構造
-
-「ルール」と「そのルールが破られたときの挙動」をセットで書くと、LLM の遵守率が上がる、らしいです。
-
-### 注釈
-
-Google Antigravity の日本語アーティファクト生成が全く安定しないので、言語に関する指示は最上部に移動しました。また、禁止事項にもアーティファクトについての記述を追加しました。
-
-## おまけ
-
-### GitHub Copilot を一括で日本語化する
-
-コミットメッセージや PR レビューのコメントを一括で日本語化します。コミットメッセージは VS Code 上だし、PR レビューは GitHub 上だし、一括設定でどうするのかと言いますと `~/Library/Application Support/Code/User/settings.json` を以下のようにします。
+コミットメッセージやレビューコメントを一括で日本語化します。コミットメッセージは VS Code 上だし、レビューコメントは GitHub 上だし、一括設定でどうするのかと言いますと `~/Library/Application Support/Code/User/settings.json` を以下のようにします。
 
 ```json
 {
   "github.copilot.chat.localeOverride": "ja",
   "github.copilot.chat.commitMessageGeneration.instructions": [
     {
-      "text": "コミットメッセージは必ず日本語で生成する。Conventional Commits 形式（feat, fix, chore, refactor, docs など）を使用する。件名は1行で簡潔に書くが、どんなに小さな変更でも必ず本文を追加すること。本文には必ず以下を含める：(1) 変更内容の概要 (2) 「<!-- PRレビューは日本語で行うこと -->」というコメント"
+      "text": "ミットメッセージは必ず日本語で生成すること。必ず Conventional Commits 形式を使用し、以下の基準で prefix を選択すること：\n- feat: 新機能の追加\n- fix: バグ修正\n- docs: ドキュメントのみの変更\n- refactor: 動作を変えないコードの整理・リネーム・移動\n- chore: ビルド設定・依存関係・ツール類の変更\n- test: テストの追加・修正\n- style: フォーマット・インデントなど動作に影響しない変更\nfeat と docs は本当に該当する場合のみ使用し、安易に選ばないこと。件名は1行で簡潔に書き、本文に変更内容の概要を含めること。本文最後に <!-- PR レビューは日本語で行うこと --> を追記すること。"
     }
   ]
 }

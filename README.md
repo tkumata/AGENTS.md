@@ -22,9 +22,9 @@ ln -s "$(pwd)/AGENTS.md" "$HOME/.copilot/copilot-instruction.md"
 ### 組み込み C のハーネスの使い方
 
 ```shell
-cp harness/c/Makefile <repo>/
-cp harness/c/hooks.json <repo>/.codex/
-cp harness/c/hooks/verify_pipeline.sh <repo>/.codex/hooks/
+cp harness/c/Makefile your_repo/
+cp harness/c/hooks.json your_repo/.codex/
+cp harness/c/hooks/verify_pipeline.sh your_repo/.codex/hooks/
 ```
 
 エージェントが実装を完了したら、`make check` が自動的に実行され、エラーがあればエラーがなくなるまで修正ループします。エラーがなければ `make build` に進みます。
@@ -34,12 +34,12 @@ cp harness/c/hooks/verify_pipeline.sh <repo>/.codex/hooks/
 ### Rust のハーネスの使い方
 
 ```shell
-cp harness/rust/Makefile <repo>/
-cp harness/rust/hooks.json <repo>/.codex/
-cp harness/rust/hooks/verify_pipeline.sh <repo>/.codex/hooks/
-vi <repo>/AGENTS.md
-vi <repo>/Cargo.toml
-vi <repo>/.gitignore
+cp harness/rust/Makefile your_repo/
+cp harness/rust/hooks.json your_repo/.codex/
+cp harness/rust/hooks/verify_pipeline.sh your_repo/.codex/hooks/
+vi your_repo/AGENTS.md
+vi your_repo/Cargo.toml
+vi your_repo/.gitignore
 ```
 
 `AGENTS.md` に以下を記述します。

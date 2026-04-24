@@ -17,14 +17,14 @@ ln -s "$(pwd)/AGENTS.md" "$HOME/.copilot/copilot-instruction.md"
 
 ## ハーネス
 
-組み込み C 言語と Rust のハーネスの雛形を試験的に残しました。組み込み C は ESP-IDF 環境を想定しています。
+組み込み C 言語と Rust のハーネスの雛形を試験的に残しました。組み込み C 開発環境は ESP-IDF を想定しています。以下のようにリポジトリルート基準で配置します。
 
 ### 組み込み C のハーネスの使い方
 
 ```shell
-cp harness/c/Makefile your_repo/
-cp harness/c/hooks.json your_repo/.codex/
-cp harness/c/hooks/verify_pipeline.sh your_repo/.codex/hooks/
+cp harness/embeded-c/Makefile your_repo/
+cp harness/embeded-c/hooks.json your_repo/.codex/
+cp harness/embeded-c/hooks/verify_pipeline.sh your_repo/.codex/hooks/
 ```
 
 エージェントが実装を完了したら、`make check` が自動的に実行され、エラーがあればエラーがなくなるまで修正ループします。エラーがなければ `make build` に進みます。

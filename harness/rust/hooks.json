@@ -7,7 +7,7 @@
             "type": "command",
             "command": "bash ./.codex/hooks/verify_pipeline.sh",
             "timeout": 600,
-            "statusMessage": "Running Rust validation pipeline"
+            "statusMessage": "[Hooks] Running Rust validation pipeline"
           }
         ]
       }

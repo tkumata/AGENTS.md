@@ -56,11 +56,16 @@ vi your_repo/.gitignore
 
 ```toml
 [lints.clippy]
-pedantic = { level = "warn", priority = -1 }
+pedantic = { level = "deny", priority = -1 }
 unwrap_used = "deny"
 expect_used = "deny"
 allow_attributes = "deny"
 dbg_macro = "deny"
+panic = "deny"
+todo = "deny"
+unimplemented = "deny"
+panic_in_result_fn = "deny"
+indexing_slicing = "deny"
 ```
 
 `.gitignore` に以下を記述します。

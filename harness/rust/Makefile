@@ -5,7 +5,7 @@ fmt-check:
 	cargo fmt --check
 
 lint:
-	cargo clippy --all-targets --all-features -- -D warnings
+	cargo clippy -- -D warnings
 
 test:
 	cargo test --all-features

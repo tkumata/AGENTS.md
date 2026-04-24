@@ -1,10 +1,6 @@
 # AGENTS.md
 
-各社のエージェントや個々のプロジェクトに依存しない共通部分をハーネスエンジニアリングの基礎として記述しました。このような書き方をすることで各サブエージェントが協業しました。Codex と Copilot で確認してます。
-
-ハーネスエンジニアリングの核心部分はプロジェクトに依存するため、本プロジェクトでは割愛します。一応 harness ディレクトリに組み込み C で利用できそうな記述や設定方法を残しています。
-
-Codex の Plus プランの場合、5時間制限をあっという間に使い切るので注意が必要です。
+各社のエージェントや個々のプロジェクトに依存しない共通部分をハーネスエンジニアリングの基礎として記述しました。
 
 ## AGENTS.md の使い方
 
@@ -17,6 +13,65 @@ ln -s "$(pwd)/AGENTS.md" "$HOME/.claude/CLAUDE.md"
 
 # setup for Copilot CLI
 ln -s "$(pwd)/AGENTS.md" "$HOME/.copilot/copilot-instruction.md"
+```
+
+## ハーネス
+
+組み込み C 言語と Rust のハーネスの雛形を試験的に残しました。組み込み C 開発環境は ESP-IDF を想定しています。以下のようにリポジトリルート基準で配置します。
+
+### 組み込み C のハーネスの使い方
+
+```shell
+cp harness/embeded-c/Makefile your_repo/
+cp harness/embeded-c/hooks.json your_repo/.codex/
+cp harness/embeded-c/hooks/verify_pipeline.sh your_repo/.codex/hooks/
+```
+
+エージェントが実装を完了したら、`make check` が自動的に実行され、エラーがあればエラーがなくなるまで修正ループします。エラーがなければ `make build` に進みます。
+
+ループするので、モデルは GPT の場合 GPT-5.x-Mini がいいかもしれないです。
+
+### Rust のハーネスの使い方
+
+```shell
+cp harness/rust/Makefile your_repo/
+cp harness/rust/hooks.json your_repo/.codex/
+cp harness/rust/hooks/verify_pipeline.sh your_repo/.codex/hooks/
+vi your_repo/AGENTS.md
+vi your_repo/Cargo.toml
+vi your_repo/.gitignore
+```
+
+`AGENTS.md` に以下を記述します。
+
+```markdown
+停止前に必ず以下を守ること:
+
+1. .codex/state/logs/check.log または build.log が存在する場合は確認すること。
+2. check が失敗した場合、警告の抑制や lint の回避ではなく、原因そのものを修正すること。
+3. make check に成功し、その後 make build に成功するまではタスク完了として停止しないこと。
+```
+
+`Cargo.toml` に以下を記述します。
+
+```toml
+[lints.clippy]
+pedantic = { level = "deny", priority = -1 }
+unwrap_used = "deny"
+expect_used = "deny"
+allow_attributes = "deny"
+dbg_macro = "deny"
+panic = "deny"
+todo = "deny"
+unimplemented = "deny"
+panic_in_result_fn = "deny"
+indexing_slicing = "deny"
+```
+
+`.gitignore` に以下を記述します。
+
+```git
+.codex/state/
 ```
 
 ## おまけ: GitHub Copilot の日本語化

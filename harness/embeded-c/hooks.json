@@ -1,0 +1,16 @@
+{
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "./.codex/hooks/verify_pipeline.sh",
+            "timeout": 300,
+            "statusMessage": "[Hooks] Running pipeline verification script"
+          }
+        ]
+      }
+    ]
+  }
+}

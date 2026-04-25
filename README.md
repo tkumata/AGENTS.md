@@ -34,12 +34,37 @@ cp harness/embeded-c/hooks/verify_pipeline.sh your_repo/.codex/hooks/
 ### Rust のハーネスの使い方
 
 ```shell
-cp harness/rust/Makefile your_repo/
-cp harness/rust/hooks.json your_repo/.codex/
-cp harness/rust/hooks/verify_pipeline.sh your_repo/.codex/hooks/
+# Codex CLI
+cp harness/rust/.codex/hooks.json your_repo/.codex/
+# Copilot CLI
+cp harness/rust/.github/hooks/hooks.json your_repo/.github/hooks/
+
+cp -pr harness/.agent-hooks your_repo/
+vi your_repo/Makefile
 vi your_repo/AGENTS.md
 vi your_repo/Cargo.toml
 vi your_repo/.gitignore
+```
+
+`Makefile` に以下を記述します。
+
+```makefile
+fmt:
+        cargo fmt
+
+fmt-check:
+        cargo fmt --check
+
+lint:
+        cargo clippy --all-targets -- -D warnings
+
+test:
+        cargo test --all-features
+
+check: fmt-check lint test
+
+build:
+        cargo build --all-features
 ```
 
 `AGENTS.md` に以下を記述します。
@@ -47,7 +72,7 @@ vi your_repo/.gitignore
 ```markdown
 停止前に必ず以下を守ること:
 
-1. `.codex/state/logs/check.log` または build.log が存在する場合は確認すること。
+1. `.agent-hooks/state/logs/check.log` または build.log が存在する場合は確認すること。
 2. check が失敗した場合、警告の抑制や lint の回避ではなく、原因そのものを修正すること。
 3. `make check` に成功し、その後 `make build` に成功するまではタスク完了として停止しないこと。
 ```
@@ -71,7 +96,7 @@ indexing_slicing = "deny"
 `.gitignore` に以下を記述します。
 
 ```git
-.codex/state/
+.agent-hooks/state/
 ```
 
 ## おまけ: GitHub Copilot の日本語化

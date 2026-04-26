@@ -22,14 +22,47 @@ ln -s "$(pwd)/AGENTS.md" "$HOME/.copilot/copilot-instruction.md"
 ### 組み込み C のハーネスの使い方
 
 ```shell
-cp harness/embeded-c/Makefile your_repo/
-cp harness/embeded-c/hooks.json your_repo/.codex/
-cp harness/embeded-c/hooks/verify_pipeline.sh your_repo/.codex/hooks/
+# Codex CLI
+cp harness/embeded-c/.codex/hooks.json your_repo/.codex/
+# Copilot CLI
+cp harness/embeded-c/.github/hooks/hooks.json your_repo/.github/hooks/
+
+cp -pr harness/.agent-hooks your_repo/
+vi your_repo/Makefile
+vi your_repo/.gitignore
 ```
 
-エージェントが実装を完了したら、`make check` が自動的に実行され、エラーがあればエラーがなくなるまで修正ループします。エラーがなければ `make build` に進みます。
+`Makefile` に以下を記述します。
 
-ループするので、モデルは GPT の場合 GPT-5.x-Mini がいいかもしれないです。
+```makefile
+SRC := $(shell git ls-files '*.c' '*.h' '*.cpp')
+
+.PHONY: format format-check lint check build
+
+define run_if_sources
+        if [ -n "$(SRC)" ]; then $(1); else echo "No C/C++ source files found."; fi
+endef
+
+format:
+        @$(call run_if_sources,clang-format -i $(SRC))
+
+format-check:
+        @$(call run_if_sources,clang-format --dry-run --Werror $(SRC))
+
+lint:
+        @$(call run_if_sources,cppcheck --enable=all --inconclusive --std=c11 --error-exitcode=1 $(SRC))
+
+check: format-check lint
+
+build:
+        @if [ -d build ]; then cmake --build build; else echo "build directory missing. Configure the project before building."; exit 1; fi
+```
+
+`.gitignore` に以下を記述します。
+
+```git
+.agent-hooks/state
+```
 
 ### Rust のハーネスの使い方
 

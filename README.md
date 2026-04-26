@@ -21,6 +21,49 @@ ln -s "$(pwd)/AGENTS.md" "$HOME/.copilot/copilot-instruction.md"
 
 ### 組み込み C のハーネスの使い方
 
+```shell
+# Codex CLI
+cp harness/embeded-c/.codex/hooks.json your_repo/.codex/
+# Copilot CLI
+cp harness/embeded-c/.github/hooks/hooks.json your_repo/.github/hooks/
+
+cp -pr harness/.agent-hooks your_repo/
+vi your_repo/Makefile
+vi your_repo/.gitignore
+```
+
+`Makefile` に以下を記述します。
+
+```makefile
+SRC := $(shell git ls-files '*.c' '*.h' '*.cpp')
+
+.PHONY: format format-check lint check build
+
+define run_if_sources
+        if [ -n "$(SRC)" ]; then $(1); else echo "No C/C++ source files found."; fi
+endef
+
+format:
+        @$(call run_if_sources,clang-format -i $(SRC))
+
+format-check:
+        @$(call run_if_sources,clang-format --dry-run --Werror $(SRC))
+
+lint:
+        @$(call run_if_sources,cppcheck --enable=all --inconclusive --std=c11 --error-exitcode=1 $(SRC))
+
+check: format-check lint
+
+build:
+        @if [ -d build ]; then cmake --build build; else echo "build directory missing. Configure the project before building."; exit 1; fi
+```
+
+`.gitignore` に以下を記述します。
+
+```git
+.agent-hooks/state
+```
+
 ### Rust のハーネスの使い方
 
 ```shell

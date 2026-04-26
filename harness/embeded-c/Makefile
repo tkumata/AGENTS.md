@@ -1,15 +1,21 @@
 SRC := $(shell git ls-files '*.c' '*.h' '*.cpp')
 
+.PHONY: format format-check lint check build
+
+define run_if_sources
+	if [ -n "$(SRC)" ]; then $(1); else echo "No C/C++ source files found."; fi
+endef
+
 format:
-	clang-format -i $(SRC)
+	@$(call run_if_sources,clang-format -i $(SRC))
 
 format-check:
-	clang-format --dry-run --Werror $(SRC)
+	@$(call run_if_sources,clang-format --dry-run --Werror $(SRC))
 
 lint:
-	cppcheck --enable=all --inconclusive --std=c11 --error-exitcode=1 src
+	@$(call run_if_sources,cppcheck --enable=all --inconclusive --std=c11 --error-exitcode=1 $(SRC))
 
 check: format-check lint
 
 build:
-	~/.pico-sdk/ninja/v1.12.1/ninja -C build
+	@if [ -d build ]; then cmake --build build; else echo "build directory missing. Configure the project before building."; exit 1; fi

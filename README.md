@@ -21,16 +21,6 @@ ln -s "$(pwd)/AGENTS.md" "$HOME/.copilot/copilot-instruction.md"
 
 ### 組み込み C のハーネスの使い方
 
-```shell
-cp harness/embeded-c/Makefile your_repo/
-cp harness/embeded-c/hooks.json your_repo/.codex/
-cp harness/embeded-c/hooks/verify_pipeline.sh your_repo/.codex/hooks/
-```
-
-エージェントが実装を完了したら、`make check` が自動的に実行され、エラーがあればエラーがなくなるまで修正ループします。エラーがなければ `make build` に進みます。
-
-ループするので、モデルは GPT の場合 GPT-5.x-Mini がいいかもしれないです。
-
 ### Rust のハーネスの使い方
 
 ```shell

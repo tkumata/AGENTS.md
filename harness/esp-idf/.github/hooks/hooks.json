@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "hooks": {
+    "agentStop": [
+      {
+        "type": "command",
+        "bash": ".agent-hooks/check_build.sh",
+        "cwd": ".",
+        "timeoutSec": 120
+      },
+      {
+        "type": "command",
+        "bash": ".agent-hooks/check_size.sh",
+        "cwd": ".",
+        "timeoutSec": 120
+      }
+    ]
+  }
+}

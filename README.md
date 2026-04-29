@@ -17,54 +17,27 @@ ln -s "$(pwd)/AGENTS.md" "$HOME/.copilot/copilot-instruction.md"
 
 ## ハーネス
 
-組み込み C 言語と Rust のハーネスの雛形を試験的に残しました。組み込み C 開発環境は ESP-IDF を想定しています。以下のようにリポジトリルート基準で配置します。
+組み込み C 言語と Rust のハーネスの雛形を試験的に残しました。組み込み C 開発環境は ESP-IDF を想定しています。
 
-### 組み込み C のハーネスの使い方
+### 組み込み C (ESP-IDF) のハーネスの使い方
+
+ESP-IDF 外のツール (clang-formatter, cppcheck, clang-tidy など) で Format, Lint チェックすると誤検知が多い  (ESP-IDF が想定している状態と違う) ので `idf.py` を経由してチェックするために `idf.py build` と `idf.py size` を検知するようにしました。
+
+なお、`idf.py clang-format` は開発中のため除外しました。
 
 ```shell
 # Codex CLI
-cp harness/embeded-c/.codex/hooks.json your_repo/.codex/
+cp harness/esp-idf/.codex/hooks.json your_repo/.codex/
 # Copilot CLI
-cp harness/embeded-c/.github/hooks/hooks.json your_repo/.github/hooks/
+cp harness/esp-idf/.github/hooks/hooks.json your_repo/.github/hooks/
 
-cp -pr harness/.agent-hooks your_repo/
-vi your_repo/Makefile
-vi your_repo/.gitignore
-```
-
-`Makefile` に以下を記述します。
-
-```makefile
-SRC := $(shell git ls-files '*.c' '*.h' '*.cpp')
-
-.PHONY: format format-check lint check build
-
-define run_if_sources
-        if [ -n "$(SRC)" ]; then $(1); else echo "No C/C++ source files found."; fi
-endef
-
-format:
-        @$(call run_if_sources,clang-format -i $(SRC))
-
-format-check:
-        @$(call run_if_sources,clang-format --dry-run --Werror $(SRC))
-
-lint:
-        @$(call run_if_sources,cppcheck --enable=all --inconclusive --std=c11 --error-exitcode=1 $(SRC))
-
-check: format-check lint
-
-build:
-        @if [ -d build ]; then cmake --build build; else echo "build directory missing. Configure the project before building."; exit 1; fi
-```
-
-`.gitignore` に以下を記述します。
-
-```git
-.agent-hooks/state
+cp -pr harness/esp-idf/.agent-hooks your_repo/
+cat harness/esp-idf/.gitignore >> your_repo/.gitignore
 ```
 
 ### Rust のハーネスの使い方
+
+パニックになる可能性が高いコードをエラー扱いするように Linter 設定をしています。
 
 ```shell
 # Codex CLI
@@ -73,64 +46,13 @@ cp harness/rust/.codex/hooks.json your_repo/.codex/
 cp harness/rust/.github/hooks/hooks.json your_repo/.github/hooks/
 
 cp -pr harness/.agent-hooks your_repo/
-vi your_repo/Makefile
-vi your_repo/AGENTS.md
-vi your_repo/Cargo.toml
-vi your_repo/.gitignore
+cat harness/rust/Makefile >> your_repo/Makefile
+cat harness/rust/AGENTS.md >> your_repo/AGENTS.md
+cat harness/rust/Cargo.toml >> your_repo/Cargo.toml
+cat harness/rust/.gitignore >> your_repo/.gitignore
 ```
 
-`Makefile` に以下を記述します。
-
-```makefile
-fmt:
-        cargo fmt
-
-fmt-check:
-        cargo fmt --check
-
-lint:
-        cargo clippy --all-targets -- -D warnings
-
-test:
-        cargo test --all-features
-
-check: fmt-check lint test
-
-build:
-        cargo build --all-features
-```
-
-`AGENTS.md` に以下を記述します。
-
-```markdown
-停止前に必ず以下を守ること:
-
-1. `.agent-hooks/state/logs/check.log` または build.log が存在する場合は確認すること。
-2. check が失敗した場合、警告の抑制や lint の回避ではなく、原因そのものを修正すること。
-3. `make check` に成功し、その後 `make build` に成功するまではタスク完了として停止しないこと。
-```
-
-`Cargo.toml` に以下を記述します。
-
-```toml
-[lints.clippy]
-pedantic = { level = "deny", priority = -1 }
-unwrap_used = "deny"
-expect_used = "deny"
-allow_attributes = "deny"
-dbg_macro = "deny"
-panic = "deny"
-todo = "deny"
-unimplemented = "deny"
-panic_in_result_fn = "deny"
-indexing_slicing = "deny"
-```
-
-`.gitignore` に以下を記述します。
-
-```git
-.agent-hooks/state/
-```
+---
 
 ## おまけ: GitHub Copilot の日本語化
 

@@ -1,0 +1,23 @@
+{
+  "hooks": {
+    "Stop": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".agent-hooks/check_build.sh",
+            "timeout": 120,
+            "statusMessage": "Checking ESP-IDF build"
+          },
+          {
+            "type": "command",
+            "command": ".agent-hooks/check_size.sh",
+            "timeout": 120,
+            "statusMessage": "Checking ESP-IDF size"
+          }
+        ]
+      }
+    ]
+  }
+}

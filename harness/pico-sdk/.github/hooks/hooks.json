@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "hooks": {
+    "preToolUse": [
+      {
+        "type": "command",
+        "bash": "AGENT_KIND=copilot ./.agent-hooks/pre_tool_guard.sh",
+        "cwd": ".",
+        "timeout": 10
+      }
+    ],
+    "agentStop": [
+      {
+        "type": "command",
+        "bash": "AGENT_KIND=copilot ./.agent-hooks/verify_pipeline.sh",
+        "cwd": ".",
+        "timeout": 300
+      }
+    ]
+  }
+}

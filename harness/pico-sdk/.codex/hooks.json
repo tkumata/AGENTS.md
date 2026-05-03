@@ -1,0 +1,26 @@
+{
+  "PreToolUse": [
+    {
+      "matcher": ".*",
+      "hooks": [
+        {
+          "type": "command",
+          "command": "AGENT_KIND=codex ./.agent-hooks/pre_tool_guard.sh",
+          "timeout": 10
+        }
+      ]
+    }
+  ],
+  "Stop": [
+    {
+      "matcher": ".*",
+      "hooks": [
+        {
+          "type": "command",
+          "command": "AGENT_KIND=codex ./.agent-hooks/verify_pipeline.sh",
+          "timeout": 300
+        }
+      ]
+    }
+  ]
+}

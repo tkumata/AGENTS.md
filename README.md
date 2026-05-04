@@ -17,7 +17,21 @@ ln -s "$(pwd)/AGENTS.md" "$HOME/.copilot/copilot-instruction.md"
 
 ## ハーネス
 
-組み込み C 言語と Rust のハーネスの雛形を試験的に残しました。組み込み C 開発環境は ESP-IDF を想定しています。
+組み込み C 言語と Rust のハーネスの雛形を試験的に残しました。
+
+### 組み込み C (Pico-SDK) のハーネスの使い方
+
+自動整形とビルドに焦点を当てています。
+
+```shell
+# Codex CLI
+cp harness/pico-sdk/.codex/hooks.json your_repo/.codex/
+# Copilot CLI
+cp harness/pico-sdk/.github/hooks/hooks.json your_repo/.github/hooks/
+
+cp -pr harness/pico-sdk/.agent-hooks your_repo/
+cat harness/pico-sdk/.gitignore >> your_repo/.gitignore
+```
 
 ### 組み込み C (ESP-IDF) のハーネスの使い方
 

@@ -1,0 +1,12 @@
+# Agent hooks runtime state
+.agent-hooks/state/
+.agent-hooks/state/logs/
+
+# Build artifacts
+build/
+*.elf
+*.uf2
+*.bin
+*.map
+*.dis
+*.hex

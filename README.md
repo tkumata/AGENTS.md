@@ -17,11 +17,9 @@ ln -s "$(pwd)/AGENTS.md" "$HOME/.copilot/copilot-instruction.md"
 
 ## ハーネス
 
-組み込み C 言語と Rust のハーネスの雛形を試験的に残しました。
+### Pico-SDK の場合 (組み込み C/C++)
 
-### 組み込み C (Pico-SDK) のハーネスの使い方
-
-自動整形とビルドに焦点を当てています。
+自動整形とビルドが成功することに焦点を当てています。
 
 ```shell
 # Codex CLI
@@ -31,11 +29,12 @@ cp harness/pico-sdk/.github/hooks/hooks.json your_repo/.github/hooks/
 
 cp -pr harness/pico-sdk/.agent-hooks your_repo/
 cat harness/pico-sdk/.gitignore >> your_repo/.gitignore
+cat harness/pico-sdk/AGENTS.md >> your_repo/AGENTS.md
 ```
 
-### 組み込み C (ESP-IDF) のハーネスの使い方
+### ESP-IDF の場合 (組み込み C/C++)
 
-ESP-IDF 外のツール (clang-formatter, cppcheck, clang-tidy など) で Format, Lint チェックすると誤検知が多い  (ESP-IDF が想定している状態と違う) ので `idf.py` を経由してチェックするために `idf.py build` と `idf.py size` を検知するようにしました。
+外部ツール (clang-formatter, cppcheck, clang-tidy など) で Format, Lint チェックすると誤検知が多い  (ESP-IDF が想定している状態と違う) ので `idf.py` を経由してチェックするために `idf.py build` と `idf.py size` を検知するようにしました。
 
 なお、`idf.py clang-format` は開発中のため除外しました。
 
@@ -49,9 +48,9 @@ cp -pr harness/esp-idf/.agent-hooks your_repo/
 cat harness/esp-idf/.gitignore >> your_repo/.gitignore
 ```
 
-### Rust のハーネスの使い方
+### Rust の場合
 
-パニックになる可能性が高いコードをエラー扱いするように Linter 設定をしています。
+パニックになる可能性のあるコードをエラー扱いするように Linter 設定をしています。
 
 ```shell
 # Codex CLI

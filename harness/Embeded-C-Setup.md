@@ -44,7 +44,7 @@ cppcheck --version
 
 結論:
 
-👉 メインは clangd、cpptools は補助として残す
+clangd、cpptools は補助として残す
 
 ## 3. VS Code 設定 (settings.json)
 

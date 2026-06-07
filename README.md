@@ -65,6 +65,16 @@ cat harness/rust/Cargo.toml >> your_repo/Cargo.toml
 cat harness/rust/.gitignore >> your_repo/.gitignore
 ```
 
+そして以下を `.vscode/settings.json` に追加してください。
+
+```json
+{
+  "evenBetterToml.schema.enabled": false,
+  "rust-analyzer.check.command": "clippy",
+  "rust-analyzer.cargo.features": "all"
+}
+```
+
 ---
 
 ## おまけ: GitHub Copilot の日本語化

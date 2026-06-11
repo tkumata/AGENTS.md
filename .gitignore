@@ -4,3 +4,4 @@
 .venv/
 *.swp
 Thumbs.db
+!/harness/rust/.vscode/

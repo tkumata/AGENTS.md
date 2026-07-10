@@ -74,6 +74,7 @@ sha256_stdin() {
 changed_relevant_paths() {
   {
     git diff --name-only --no-renames HEAD
+    git diff-tree --no-commit-id --name-only -r --root HEAD
     git ls-files --others --exclude-standard
   } | while IFS= read -r path; do
     if is_relevant_path "${path}"; then
@@ -91,13 +92,16 @@ check_fingerprint() {
     return
   fi
 
-  while IFS= read -r path; do
+  {
+    printf 'HEAD %s\n' "$(git rev-parse HEAD)"
+    while IFS= read -r path; do
     if [ -f "${path}" ]; then
       printf '%s  %s\n' "${path}" "$(sha256_file "${path}")"
     else
       printf 'deleted  %s\n' "${path}"
     fi
-  done <<<"${paths}" | sha256_stdin
+    done <<<"${paths}"
+  } | sha256_stdin
 }
 
 read_cached_state() {

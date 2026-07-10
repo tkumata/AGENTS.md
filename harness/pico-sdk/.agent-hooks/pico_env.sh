@@ -34,7 +34,7 @@ while IFS= read -r bin_dir; do
   export PATH="${bin_dir}:${PATH}"
 done < <(find "${PICO_HOME}" -maxdepth 3 -type d -name bin 2>/dev/null)
 
-export PICO_BOARD="${PICO_BOARD:-pico_w}"
+export PICO_BOARD="${PICO_BOARD:-pico2_w}"
 export BUILD_DIR="${BUILD_DIR:-${ROOT}/build}"
 
 cd "${ROOT}"

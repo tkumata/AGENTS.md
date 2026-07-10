@@ -14,7 +14,7 @@
         "type": "command",
         "bash": "AGENT_KIND=copilot ./.agent-hooks/verify_pipeline.sh",
         "cwd": ".",
-        "timeout": 300
+        "timeout": 60
       }
     ]
   }

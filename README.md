@@ -1,6 +1,6 @@
 # AGENTS.md
 
-各社のエージェントや個々のプロジェクトに依存しない共通部分をハーネスエンジニアリングの基礎として記述しました。
+各社のエージェントや個々のプロジェクトに依存しないプロジェクトとしての共通部分を基本として記述しました。可能な限り50行以下を目指し、定量的なものはハーネスに記述するようにしました。
 
 ## AGENTS.md の使い方
 
@@ -19,9 +19,9 @@ ln -s "$(pwd)/AGENTS.md" "$HOME/.copilot/copilot-instruction.md"
 
 ### Pico-SDK の場合 (組み込み C/C++)
 
-自動整形とビルドが成功することに焦点を当てています。
+.h, .c, .cpp, .hpp, .cmake などソースコードファイルの fingerprint を見て違いがあればフォーマットチェックとビルドを行い、結果をエージェントに返します。これにより、多純な質問などではハーネスが発火せずソースコードなどを編集した時だけハーネスが発火します。
 
-```shell
+```sh
 # Codex CLI
 cp harness/pico-sdk/.codex/hooks.json your_repo/.codex/
 # Copilot CLI
@@ -34,11 +34,11 @@ cat harness/pico-sdk/AGENTS.md >> your_repo/AGENTS.md
 
 ### ESP-IDF の場合 (組み込み C/C++)
 
-外部ツール (clang-formatter, cppcheck, clang-tidy など) で Format, Lint チェックすると誤検知が多い  (ESP-IDF が想定している状態と違う) ので `idf.py` を経由してチェックするために `idf.py build` と `idf.py size` を検知するようにしました。
+外部ツール (clang-formatter, cppcheck, clang-tidy など) で Format, Lint チェックすると誤検知が多い (ESP-IDF が想定している状態と違う) ので `idf.py` を経由してチェックするために `idf.py build` と `idf.py size` を検知するようにしました。
 
 なお、`idf.py clang-format` は開発中のため除外しました。
 
-```shell
+```sh
 # Codex CLI
 cp harness/esp-idf/.codex/hooks.json your_repo/.codex/
 # Copilot CLI
@@ -50,9 +50,9 @@ cat harness/esp-idf/.gitignore >> your_repo/.gitignore
 
 ### Rust の場合
 
-パニックになる可能性のあるコードをエラー扱いするように Linter 設定をしています。
+パニックになる可能性のあるコードをエラー扱いするように Linter を設定しました。
 
-```shell
+```sh
 # Codex CLI
 cp harness/rust/.codex/hooks.json your_repo/.codex/
 # Copilot CLI

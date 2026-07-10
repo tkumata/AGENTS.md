@@ -3,10 +3,13 @@ set -euo pipefail
 
 cd "$(git rev-parse --show-toplevel)"
 
-files="$(git ls-files '*.c' '*.h' '*.cpp' '*.hpp')"
+files=()
+while IFS= read -r -d '' file; do
+  files+=("${file}")
+done < <(git ls-files -z '*.c' '*.h' '*.cpp' '*.hpp')
 
-if [ -z "${files}" ]; then
+if [ "${#files[@]}" -eq 0 ]; then
   exit 0
 fi
 
-clang-format -i ${files}
+clang-format --dry-run -Werror "${files[@]}"

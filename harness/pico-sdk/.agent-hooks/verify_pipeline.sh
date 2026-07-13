@@ -30,26 +30,26 @@ report_failure() {
 }
 
 verify_static() {
-  jq empty .codex/hooks.json
-  jq empty .github/hooks/hooks.json
+  jq empty .codex/hooks.json || return 1
+  jq empty .github/hooks/hooks.json || return 1
 
   local script
   for script in .agent-hooks/*.sh; do
-    bash -n "${script}"
+    bash -n "${script}" || return 1
   done
 
   jq -e '
     .hooks.PreToolUse[0].matcher == "Bash" and
     .hooks.PreToolUse[0].hooks[0].command == "AGENT_KIND=codex ./.agent-hooks/pre_tool_guard.sh" and
     .hooks.Stop[0].hooks[0].command == "AGENT_KIND=codex ./.agent-hooks/verify_pipeline.sh"
-  ' .codex/hooks.json >/dev/null
+  ' .codex/hooks.json >/dev/null || return 1
   jq -e '
     .version == 1 and
     .hooks.preToolUse[0].bash == "AGENT_KIND=copilot ./.agent-hooks/pre_tool_guard.sh" and
     .hooks.agentStop[0].bash == "AGENT_KIND=copilot ./.agent-hooks/verify_pipeline.sh"
-  ' .github/hooks/hooks.json >/dev/null
+  ' .github/hooks/hooks.json >/dev/null || return 1
 
-  git diff --check
+  git diff --check || return 1
 }
 
 is_relevant_path() {
@@ -74,7 +74,6 @@ sha256_stdin() {
 changed_relevant_paths() {
   {
     git diff --name-only --no-renames HEAD
-    git diff-tree --no-commit-id --name-only -r --root HEAD
     git ls-files --others --exclude-standard
   } | while IFS= read -r path; do
     if is_relevant_path "${path}"; then
@@ -93,7 +92,6 @@ check_fingerprint() {
   fi
 
   {
-    printf 'HEAD %s\n' "$(git rev-parse HEAD)"
     while IFS= read -r path; do
     if [ -f "${path}" ]; then
       printf '%s  %s\n' "${path}" "$(sha256_file "${path}")"
@@ -140,22 +138,19 @@ run_full_check() {
 
 cd "${ROOT}"
 
-if ! verify_static; then
-  report_failure "Harness static verification failed. Read the hook JSON, shell syntax, and git diff errors, fix the root cause, then continue."
-  exit 0
-fi
-
 fingerprint="$(check_fingerprint)"
-read_cached_state
-
 if [ "${fingerprint}" = "no-relevant-changes" ]; then
   exit 0
 fi
 
+read_cached_state
 if [ "${fingerprint}" = "${CACHED_FINGERPRINT}" ]; then
-  if [ "${CACHED_STATUS}" = "failure" ]; then
-    report_failure "Full harness check is still failing for the current change set. Read ${LOG_DIR}/check-${fingerprint}.log, fix the root cause, then continue."
-  fi
+  exit 0
+fi
+
+if ! verify_static; then
+  write_cached_state "failure" "${fingerprint}"
+  report_failure "Harness static verification failed. Read the hook JSON, shell syntax, and git diff errors, fix the root cause, then continue."
   exit 0
 fi
 

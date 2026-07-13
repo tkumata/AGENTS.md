@@ -17,20 +17,23 @@ ln -s "$(pwd)/AGENTS.md" "$HOME/.copilot/copilot-instruction.md"
 
 ## ハーネス
 
+リポジトリ直下で対話式インストーラを実行します。
+
+```sh
+./install.sh
+# 既存ファイルをテンプレートで全面置換する場合
+./install.sh --override
+```
+
+インストール先プロジェクトのパスを入力し、環境を `rust`、`pico-sdk`、`esp-idf` から番号で1つ選択します。質問はこの2項目だけです。選択した `harness/<environment>/` の隠しファイルとサブディレクトリを含む全内容が、インストール先の直下へ配置されます。
+
+同一内容の既存ファイルは変更されません。`.gitignore`、フック JSON、VS Code 設定、`Cargo.toml`、`Makefile` は既存設定を保持して不足項目だけをマージします。同じ設定の値が異なる場合、未対応ファイルの内容が異なる場合、または型の異なる同名パスがある場合は、配置を開始せずエラー終了します。実行には Bash、Python 3、標準的な Unix コマンドが必要です。
+
+`--override` を指定すると、テンプレートに含まれる既存の通常ファイルを内容とモードも含めてテンプレートで全面置換します。テンプレートに含まれない配置先ファイルは変更しません。シンボリックリンクと型の異なる同名パスは上書きせずエラー終了します。
+
 ### Pico-SDK の場合 (組み込み C/C++)
 
 .h, .c, .cpp, .hpp, .cmake などソースコードファイルの fingerprint を見て違いがあればフォーマットチェックとビルドを行い、結果をエージェントに返します。これにより、多純な質問などではハーネスが発火せずソースコードなどを編集した時だけハーネスが発火します。
-
-```sh
-# Codex CLI
-cp harness/pico-sdk/.codex/hooks.json your_repo/.codex/
-# Copilot CLI
-cp harness/pico-sdk/.github/hooks/hooks.json your_repo/.github/hooks/
-
-cp -pr harness/pico-sdk/.agent-hooks your_repo/
-cat harness/pico-sdk/.gitignore >> your_repo/.gitignore
-cat harness/pico-sdk/AGENTS.md >> your_repo/AGENTS.md
-```
 
 ### ESP-IDF の場合 (組み込み C/C++)
 
@@ -38,42 +41,9 @@ cat harness/pico-sdk/AGENTS.md >> your_repo/AGENTS.md
 
 なお、`idf.py clang-format` は開発中のため除外しました。
 
-```sh
-# Codex CLI
-cp harness/esp-idf/.codex/hooks.json your_repo/.codex/
-# Copilot CLI
-cp harness/esp-idf/.github/hooks/hooks.json your_repo/.github/hooks/
-
-cp -pr harness/esp-idf/.agent-hooks your_repo/
-cat harness/esp-idf/.gitignore >> your_repo/.gitignore
-```
-
 ### Rust の場合
 
 パニックになる可能性のあるコードをエラー扱いするように Linter を設定しました。
-
-```sh
-# Codex CLI
-cp harness/rust/.codex/hooks.json your_repo/.codex/
-# Copilot CLI
-cp harness/rust/.github/hooks/hooks.json your_repo/.github/hooks/
-
-cp -pr harness/.agent-hooks your_repo/
-cat harness/rust/Makefile >> your_repo/Makefile
-cat harness/rust/AGENTS.md >> your_repo/AGENTS.md
-cat harness/rust/Cargo.toml >> your_repo/Cargo.toml
-cat harness/rust/.gitignore >> your_repo/.gitignore
-```
-
-そして以下を `.vscode/settings.json` に追加してください。
-
-```json
-{
-  "evenBetterToml.schema.enabled": false,
-  "rust-analyzer.check.command": "clippy",
-  "rust-analyzer.cargo.features": "all"
-}
-```
 
 ---
 

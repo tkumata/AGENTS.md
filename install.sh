@@ -4,24 +4,40 @@ set -u
 
 installer_dir=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd -P) || exit 1
 merge_helper="$installer_dir/merge.py"
-override=0
+dry_run=0
+help_requested=0
 
-case "${1-}" in
-  '') ;;
-  --override) override=1 ;;
-  --help)
-    printf 'Usage: %s [--override]\n' "${0##*/}"
-    exit 0
-    ;;
-  *)
-    printf 'エラー: 不明なオプションです: %s\n' "$1" >&2
+while [ "$#" -gt 0 ]; do
+  case "$1" in
+    --dry-run)
+      if [ "$dry_run" -eq 1 ]; then
+        printf 'エラー: オプションが重複しています: %s\n' "$1" >&2
+        exit 1
+      fi
+      dry_run=1
+      ;;
+    --help)
+      if [ "$help_requested" -eq 1 ]; then
+        printf 'エラー: オプションが重複しています: %s\n' "$1" >&2
+        exit 1
+      fi
+      help_requested=1
+      ;;
+    *)
+      printf 'エラー: 不明なオプションです: %s\n' "$1" >&2
+      exit 1
+      ;;
+  esac
+  shift
+done
+
+if [ "$help_requested" -eq 1 ]; then
+  if [ "$dry_run" -eq 1 ]; then
+    printf 'エラー: --help は他のオプションと併用できません。\n' >&2
     exit 1
-    ;;
-esac
-
-if [ "$#" -gt 1 ]; then
-  printf 'エラー: 引数が多すぎます。\n' >&2
-  exit 1
+  fi
+  printf 'Usage: %s [--dry-run]\n' "${0##*/}"
+  exit 0
 fi
 
 if ! command -v python3 >/dev/null 2>&1; then
@@ -99,11 +115,6 @@ while IFS= read -r -d '' source_path; do
         if ! mkdir -p -- "$(dirname -- "$staged_path")"; then
           printf 'エラー: 一時ディレクトリを作成できません: %s\n' "$relative_path" >&2
           conflict_found=1
-        elif [ "$override" -eq 1 ]; then
-          if ! cp -p -- "$source_path" "$staged_path"; then
-            printf 'エラー: 上書き内容を準備できません: %s\n' "$relative_path" >&2
-            conflict_found=1
-          fi
         elif ! merge_error=$(python3 "$merge_helper" merge "$relative_path" \
           "$destination_path" "$source_path" "$staged_path" 2>&1); then
           printf 'エラー: 配置先と衝突しています: %s (%s)\n' \
@@ -122,6 +133,27 @@ if [ "$conflict_found" -ne 0 ]; then
   exit 1
 fi
 
+if [ "$dry_run" -eq 1 ]; then
+  copied_count=0
+  merged_count=0
+  while IFS= read -r -d '' source_path; do
+    relative_path=${source_path#"$source_dir"/}
+    destination_path="$target_dir/$relative_path"
+    staged_path="$staging_dir/$relative_path"
+    if [ ! -e "$destination_path" ]; then
+      printf '予定: 新規: %s\n' "$relative_path"
+      copied_count=$((copied_count + 1))
+    elif [ -f "$staged_path" ] && ! cmp -s -- "$staged_path" "$destination_path"; then
+      printf '予定: マージ: %s\n' "$relative_path"
+      merged_count=$((merged_count + 1))
+    fi
+  done < <(find "$source_dir" -mindepth 1 -type f -print0)
+
+  printf 'dry-run完了: %s -> %s (新規: %s, マージ: %s)\n' \
+    "$environment" "$target_dir" "$copied_count" "$merged_count"
+  exit 0
+fi
+
 while IFS= read -r -d '' source_path; do
   relative_path=${source_path#"$source_dir"/}
   destination_path="$target_dir/$relative_path"
@@ -135,7 +167,6 @@ done < <(find "$source_dir" -mindepth 1 -type d -print0)
 
 copied_count=0
 merged_count=0
-overridden_count=0
 while IFS= read -r -d '' source_path; do
   relative_path=${source_path#"$source_dir"/}
   destination_path="$target_dir/$relative_path"
@@ -148,22 +179,16 @@ while IFS= read -r -d '' source_path; do
     copied_count=$((copied_count + 1))
   elif [ -f "$staged_path" ] && ! cmp -s -- "$staged_path" "$destination_path"; then
     temporary_path="$destination_path.harness-installer.$$"
-    if { [ "$override" -eq 1 ] && ! cp -p -- "$staged_path" "$temporary_path"; } || \
-      { [ "$override" -eq 0 ] && \
-        { ! cp -p -- "$destination_path" "$temporary_path" || \
-          ! cp -- "$staged_path" "$temporary_path"; }; } || \
+    if { ! cp -p -- "$destination_path" "$temporary_path" || \
+      ! cp -- "$staged_path" "$temporary_path"; } || \
       ! mv -- "$temporary_path" "$destination_path"; then
       rm -f -- "$temporary_path"
       printf 'エラー: 更新結果を配置できません: %s\n' "$relative_path" >&2
       exit 1
     fi
-    if [ "$override" -eq 1 ]; then
-      overridden_count=$((overridden_count + 1))
-    else
-      merged_count=$((merged_count + 1))
-    fi
+    merged_count=$((merged_count + 1))
   fi
 done < <(find "$source_dir" -mindepth 1 -type f -print0)
 
-printf 'インストール完了: %s -> %s (新規: %s, マージ: %s, 上書き: %s)\n' \
-  "$environment" "$target_dir" "$copied_count" "$merged_count" "$overridden_count"
+printf 'インストール完了: %s -> %s (新規: %s, マージ: %s)\n' \
+  "$environment" "$target_dir" "$copied_count" "$merged_count"

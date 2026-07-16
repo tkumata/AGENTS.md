@@ -22,6 +22,15 @@ run_installer() {
   printf '%s\n%s\n' "$target" "$selection" | "$installer" "$@" >"$output_file" 2>&1
 }
 
+snapshot_tree() {
+  target=$1
+  output_file=$2
+  {
+    find "$target" -exec stat -f '%N %HT %Lp %m %z' {} \;
+    find "$target" -type f -exec cksum {} \;
+  } | sort >"$output_file"
+}
+
 assert_templates_match() {
   environment=$1
   target=$2
@@ -65,6 +74,34 @@ for environment_and_selection in 'rust 1' 'pico-sdk 2' 'esp-idf 3'; do
   cmp -s "$before" "$after" || fail "$environment: repeated installation changed files"
 done
 
+dry_run_target="$temporary_root/dry-run-target"
+dry_run_output="$temporary_root/dry-run-output"
+dry_run_install_output="$temporary_root/dry-run-install-output"
+mkdir "$dry_run_target"
+rust_file_count=$(find "$repository_dir/harness/rust" -type f | wc -l | tr -d ' ')
+if ! run_installer "$dry_run_target" 1 "$dry_run_output" --dry-run; then
+  fail 'initial dry-run failed'
+else
+  [ -z "$(find "$dry_run_target" -mindepth 1 -print -quit)" ] || fail 'dry-run changed an empty target'
+  grep -Fq '予定: 新規: Cargo.toml' "$dry_run_output" || fail 'dry-run omitted a planned new file'
+  grep -Fq "(新規: $rust_file_count, マージ: 0)" "$dry_run_output" || fail 'dry-run reported incorrect new-file counts'
+fi
+if ! run_installer "$dry_run_target" 1 "$dry_run_install_output"; then
+  fail 'installation after dry-run failed'
+else
+  grep -Fq "(新規: $rust_file_count, マージ: 0)" "$dry_run_install_output" || fail 'dry-run counts differed from installation counts'
+fi
+
+dry_run_before="$temporary_root/dry-run-before"
+dry_run_after="$temporary_root/dry-run-after"
+snapshot_tree "$dry_run_target" "$dry_run_before"
+if ! run_installer "$dry_run_target" 1 "$dry_run_output" --dry-run; then
+  fail 'no-change dry-run failed'
+fi
+snapshot_tree "$dry_run_target" "$dry_run_after"
+cmp -s "$dry_run_before" "$dry_run_after" || fail 'no-change dry-run modified the target'
+grep -Fq '(新規: 0, マージ: 0)' "$dry_run_output" || fail 'no-change dry-run reported changes'
+
 permission_target="$temporary_root/permission-target"
 mkdir "$permission_target"
 if run_installer "$permission_target" 2 "$temporary_root/permission-output"; then
@@ -81,6 +118,11 @@ if run_installer "$conflict_target" 1 "$temporary_root/conflict-output"; then
 fi
 [ "$(cat "$conflict_target/.codex/hooks.json")" = existing ] || fail 'conflicting file was changed'
 [ ! -e "$conflict_target/Cargo.toml" ] || fail 'preflight allowed a partial installation'
+if run_installer "$conflict_target" 1 "$temporary_root/conflict-dry-run-output" --dry-run; then
+  fail 'conflicting dry-run succeeded'
+fi
+[ "$(cat "$conflict_target/.codex/hooks.json")" = existing ] || fail 'conflicting dry-run changed a file'
+[ ! -e "$conflict_target/Cargo.toml" ] || fail 'conflicting dry-run allowed a partial installation'
 
 merge_target="$temporary_root/merge-target"
 mkdir -p "$merge_target/.codex" "$merge_target/.github/hooks" "$merge_target/.vscode"
@@ -121,6 +163,18 @@ chmod 640 "$merge_target/Cargo.toml"
 printf '%s\n' \
   'custom:' \
   '	@echo custom' >"$merge_target/Makefile"
+
+merge_dry_run_before="$temporary_root/merge-dry-run-before"
+merge_dry_run_after="$temporary_root/merge-dry-run-after"
+snapshot_tree "$merge_target" "$merge_dry_run_before"
+if ! run_installer "$merge_target" 1 "$temporary_root/merge-dry-run-output" --dry-run; then
+  fail 'supported file merge dry-run failed'
+else
+  grep -Fq '予定: マージ: .gitignore' "$temporary_root/merge-dry-run-output" || fail 'merge dry-run omitted a planned merge'
+fi
+snapshot_tree "$merge_target" "$merge_dry_run_after"
+cmp -s "$merge_dry_run_before" "$merge_dry_run_after" || fail 'merge dry-run modified the target'
+[ ! -e "$merge_target/.agent-hooks" ] || fail 'merge dry-run created a directory'
 
 if ! run_installer "$merge_target" 1 "$temporary_root/merge-output"; then
   fail 'supported file merge failed'
@@ -183,42 +237,22 @@ fi
 grep -Fxq '	@echo existing' "$make_conflict_target/Makefile" || fail 'conflicting Makefile was changed'
 [ ! -e "$make_conflict_target/.agent-hooks" ] || fail 'Makefile conflict allowed a partial installation'
 
-override_target="$temporary_root/override-target"
-mkdir -p "$override_target/.agent-hooks"
-printf '%s\n' 'local lint configuration' >"$override_target/Makefile"
-printf '%s\n' 'local pipeline' >"$override_target/.agent-hooks/verify_pipeline.sh"
-printf '%s\n' 'keep me' >"$override_target/project-only.txt"
-chmod 600 "$override_target/Makefile"
-if ! run_installer "$override_target" 1 "$temporary_root/override-output" --override; then
-  fail 'override installation failed'
-else
-  assert_templates_match rust "$override_target"
-  [ "$(cat "$override_target/project-only.txt")" = 'keep me' ] || fail 'override changed a template-external file'
-  [ "$(stat -f '%Lp' "$override_target/Makefile")" = "$(stat -f '%Lp' "$repository_dir/harness/rust/Makefile")" ] || fail 'override did not apply template mode'
-  grep -Fq '上書き: 2' "$temporary_root/override-output" || fail 'override count was not reported'
-
-  override_before="$temporary_root/override-before"
-  override_after="$temporary_root/override-after"
-  find "$override_target" -type f -exec stat -f '%N %m' {} \; | sort >"$override_before"
-  if ! run_installer "$override_target" 1 "$temporary_root/override-repeat-output" --override; then
-    fail 'repeated override installation failed'
-  fi
-  find "$override_target" -type f -exec stat -f '%N %m' {} \; | sort >"$override_after"
-  cmp -s "$override_before" "$override_after" || fail 'repeated override installation changed files'
-fi
-
-override_link_target="$temporary_root/override-link-target"
-mkdir -p "$override_link_target/.agent-hooks"
-ln -s "$temporary_root/missing" "$override_link_target/.agent-hooks/verify_pipeline.sh"
-if run_installer "$override_link_target" 1 "$temporary_root/override-link-output" --override; then
-  fail 'override accepted a symbolic link conflict'
-fi
-[ ! -e "$override_link_target/Cargo.toml" ] || fail 'override link conflict allowed a partial installation'
-
 if ! "$installer" --help >"$temporary_root/help-output" 2>&1; then
   fail '--help failed'
 fi
-grep -Fq -- '--override' "$temporary_root/help-output" || fail '--help omitted --override'
+grep -Fq -- '--dry-run' "$temporary_root/help-output" || fail '--help omitted --dry-run'
+
+if "$installer" --override >"$temporary_root/override-output" 2>&1; then
+  fail 'removed --override option succeeded'
+fi
+
+if "$installer" --dry-run --dry-run >"$temporary_root/duplicate-output" 2>&1; then
+  fail 'duplicate option succeeded'
+fi
+
+if "$installer" --help --dry-run >"$temporary_root/help-combination-output" 2>&1; then
+  fail '--help combination succeeded'
+fi
 
 if "$installer" --unknown >"$temporary_root/unknown-output" 2>&1; then
   fail 'unknown option succeeded'

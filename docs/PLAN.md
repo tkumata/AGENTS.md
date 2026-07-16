@@ -1,47 +1,47 @@
-# Harness Installer Override Plan
+# Rust Stop-time Code Review Plan
 
 ## Goal
 
-通常の安全なマージ動作を維持しつつ、明示的な `--override` 指定時にテンプレートの
-既存通常ファイルを全面置換できるようにする。
+Rust 関連変更の検証成功後、特定の AI エージェントに依存しない自然言語でコードレビューを
+要求する。
 
 ## Success Criteria
 
-- 新規パスと同一内容の既存ファイルは従来どおり安全に処理できる。
-- 通常モードは既存のマージ・競合規則を維持する。
-- `--override` はテンプレートに含まれる異なる通常ファイルを内容とモードごと置換する。
-- `--override` でもテンプレート外ファイルを保持し、型衝突とシンボリックリンクを拒否する。
-- 同じ環境の再インストールは冪等であり、既存ファイルを更新しない。
-- コピーと更新が混在しても、論理的な競合による部分更新が起きない。
+- Rust 関連変更がない場合は検証とレビューを要求しない。
+- 既存の Rust 対象パス、fingerprint、`make check`、`make build` の順序を維持する。
+- build 成功後は、現在の未コミット変更をレビューするよう自然言語で要求する。
+- レビュー指示は特定の AI エージェント名、専用コマンド、レビュー結果 JSON に依存しない。
+- レビュー中に Rust 関連ファイルが変わった場合は `make check` から再検証する。
+- 同一 fingerprint の検証を繰り返さない。
 - リポジトリで定義した検証がすべて成功する。
 
 ## Phases
 
-### Phase 1: Override Contract
+### Phase 1: Review Contract
 
 Status: Completed
 
-- `--override` の対象、非対象、モード保持、失敗条件を全 DOCUMENT へ反映する。
-- 旧 ADR を退避し、明示的な全面置換を採用する ADR を作成する。
+- 自然言語レビューの発火条件、対象、再検証条件を全 DOCUMENT へ反映する。
+- 旧 ADR を退避し、Stop 時レビューを採用する ADR を作成する。
 
-完了条件は、要件、仕様、設計、ADR のマージ規則が一致することである。
+完了条件は、要件、仕様、設計、ADR のレビュー規則が一致することである。
 
-### Phase 2: Override Implementation
+### Phase 2: Review Request Implementation
 
 Status: Completed
 
-- 引数解析、上書き用Preflight、置換件数の表示を実装する。
-- 全パスの検証成功後にだけ配置先を更新する。
+- `verify_pipeline.sh` にエージェント中立なレビュー指示を定義する。
+- build 成功と fingerprint の不変を確認した後、検証済み状態を保存してレビューを要求する。
 
-完了条件は、新規コピー、同一ファイル、正常マージ、競合を実装できることである。
+完了条件は、build 成功後に Stop が継続され、同じエージェントがコードレビューへ進むことである。
 
 ### Phase 3: Verification Coverage
 
 Status: Completed
 
-- 通常モードの既存回帰テストを維持する。
-- 上書き、テンプレート外ファイル保持、モード、シンボリックリンク拒否をテストする。
-- 再インストール時に内容と更新時刻が変わらないことを確認する。
+- Shell 構文、ShellCheck、差分の空白エラーを検査する。
+- Rust 関連変更なし、check 成功、build 成功、レビュー修正後の fingerprint 変化を確認する。
+- インストーラの既存回帰テストを実行する。
 
 完了条件は、追加シナリオと既存シナリオがすべて成功することである。
 
@@ -49,25 +49,31 @@ Status: Completed
 
 Status: Completed
 
-- 実装結果に合わせて README と全 DOCUMENT を同期する。
+- 実装結果と検証結果に合わせて README と全 DOCUMENT を同期する。
 - 検証コマンドと結果を記録する。
 
 完了条件は、README、要件、仕様、設計、実装、テストが一致することである。
 
 ## Out of Scope
 
-- `.agent-hooks/*.sh` を含む任意テキストの自動マージ
-- 競合時の既存値またはテンプレート値の自動優先
-- 利用者へファイル単位の選択や競合解消を求める追加対話
-- 過去のテンプレートを保存した三者間マージ
-- コピー開始後の OS または I/O 障害に対する完全なロールバック
+- Claude Code または Gemini 用フック設定の追加
+- エージェント固有のレビューコマンドやレビュー結果 JSON の導入
+- レビュー完了を示す追加ファイルまたは追加スクリプト
+- Rust 関連変更がない場合のコードレビュー
 
 ## Verification
 
-- `bash -n install.sh tests/install_test.sh`
-- `python3 -m py_compile merge.py`
-- `shellcheck install.sh tests/install_test.sh`
+- `bash -n harness/rust/.agent-hooks/*.sh install.sh tests/install_test.sh`
+- `PYTHONPYCACHEPREFIX=/tmp/agents-md-pycache python3 -m py_compile merge.py`
+- `shellcheck harness/rust/.agent-hooks/verify_pipeline.sh install.sh tests/install_test.sh`
+- 一時 Git リポジトリで Rust Stop フックの状態遷移を確認
 - `tests/install_test.sh`
 - `git diff --check`
 
-上記は 2026-07-13 にすべて成功した。
+上記は 2026-07-16 にすべて成功した。一時 Git リポジトリでは Codex と Copilot のレビュー要求、
+同一 fingerprint での終了、レビュー修正後の `make check` 再実行、Rust 関連変更なしの終了を
+確認した。
+
+参考として `shellcheck harness/rust/.agent-hooks/*.sh install.sh tests/install_test.sh` は、
+未変更の `pre_tool_guard.sh` にある既存の SC2034 と SC2016 により失敗する。今回の変更範囲には
+含めず、`verify_pipeline.sh` の ShellCheck 成功を完了条件とした。

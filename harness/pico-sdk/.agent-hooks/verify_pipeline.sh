@@ -5,6 +5,7 @@ ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
 STATE_DIR="${ROOT}/.agent-hooks/state"
 STATE_FILE="${STATE_DIR}/check-state"
 LOG_DIR="${STATE_DIR}/logs"
+REVIEW_INSTRUCTION="Full harness verification passed. Before stopping, review the current uncommitted changes for correctness, regressions, security, tests, and documentation consistency. Fix every actionable finding within the requested scope. If you change files, finish the fixes and let the Stop hook rerun verification before claiming completion. If there are no findings, report that explicitly and stop."
 
 json_copilot_block() {
   local msg="$1"
@@ -16,7 +17,7 @@ json_codex_continue() {
   jq -nc --arg msg "${msg}" '{continue:true, stopReason:$msg, systemMessage:$msg}'
 }
 
-report_failure() {
+request_continuation() {
   local msg="$1"
 
   case "${AGENT_KIND:-generic}" in
@@ -27,6 +28,14 @@ report_failure() {
       json_codex_continue "${msg}"
       ;;
   esac
+}
+
+report_failure() {
+  request_continuation "$1"
+}
+
+request_review() {
+  request_continuation "${REVIEW_INSTRUCTION}"
 }
 
 verify_static() {
@@ -128,6 +137,7 @@ run_full_check() {
 
   mkdir -p "${LOG_DIR}"
   if ./.agent-hooks/check.sh > "${log}" 2>&1; then
+    request_review
     write_cached_state "success" "${fingerprint}"
     return 0
   fi

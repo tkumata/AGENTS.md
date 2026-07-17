@@ -1,4 +1,4 @@
-# Harness Installer Merge Design
+# Harness Installer Design
 
 ## Overview
 
@@ -11,7 +11,7 @@
 ```text
 start
   -> resolve installer and merge helper
-  -> parse normal, override, or help mode
+  -> parse normal, dry-run, or help mode
   -> read and validate target and environment
   -> create staging directory
   -> enumerate all template paths
@@ -19,12 +19,11 @@ start
      -> new file: record copy operation
      -> identical file: skip
      -> supported file: generate merged file in staging
-     -> override mode regular file: stage the template file
      -> conflict: report and exit without destination changes
+  -> dry-run: report planned file operations and exit
   -> create missing directories
   -> copy new files preserving template mode
   -> replace changed merged files preserving destination mode
-  -> replace override files using template mode
   -> report counts and success
 ```
 
@@ -33,11 +32,12 @@ start
 ### `install.sh`
 
 - 対話入力、固定候補からの環境決定、パス型検査を行う。
-- `--override` を解釈し、通常の意味的マージと明示的な全面置換を切り替える。
+- `--dry-run` を解釈し、Preflight 後の配置処理を抑止する。
 - 空白や改行以外の特殊文字を含むパスを安全に列挙する。
 - マージヘルパーの終了結果を Preflight の成否へ反映する。
 - 全論理検査が成功するまで配置先を変更しない。
 - 新規ファイルとマージファイルのモードをそれぞれ保持する。
+- dry-run では staging と配置先の状態から予定操作を分類し、相対パスと件数を表示する。
 
 ### `merge.py`
 
@@ -51,7 +51,6 @@ start
 
 マージ可能性とマージ結果をコピー開始前に確定する。既存設定とテンプレート設定の
 優先順位は設けない。同じ識別子が異なる定義を持つ場合は判断不能な競合とする。
-ただし、利用者が `--override` を明示した場合に限り、テンプレート通常ファイルを優先する。
 
 シンボリックリンクと特殊ファイルは、リンク先の暗黙変更やデバイスアクセスを避けるため
 未対応とする。
@@ -66,6 +65,26 @@ start
 入力、パス型、形式構文、意味的競合は Preflight で検出するため、これらによる部分更新は
 発生しない。配置開始後の容量不足、権限変更、デバイス障害などに対する完全なロールバックは
 保証しない。
+
+## Dry-run Boundary
+
+dry-run は通常実行と同じ staging 完了後に分岐し、配置先へ書き込む処理へ到達させない。
+予定操作は新規ファイルと、staging の完成内容が既存内容と異なるファイルから導出する。
+これにより競合判定と変更件数を実配置と共有する。
+
+## Rust Stop-time Review
+
+`harness/rust/.agent-hooks/verify_pipeline.sh` は、Rust 関連差分の fingerprint と
+`check_pending`、`build_pending`、`done` の状態を管理する。既存の検証済み fingerprint を
+レビュー要求後の再入防止にも利用し、レビュー専用の状態ファイルや承認入力は追加しない。
+
+build 成功後は検証済み fingerprint を保存し、フック出力のメッセージとして自然言語の
+レビュー指示を返す。同じエージェントが現在の未コミット変更をレビューし、修正した場合は
+次の Stop で fingerprint の差により検証が再開される。修正がない場合は、次の Stop を
+レビュー完了の意思表示として扱い、同一 fingerprint の検証を繰り返さない。
+
+レビュー指示本文はエージェント共通とし、Codex、Copilot、将来の Claude Code、Gemini の
+違いは、フック設定と継続要求の出力形式に限定する。
 
 ## Implementation Constraints
 

@@ -6,6 +6,7 @@ AGENT="${1:-codex}"
 STATE_DIR=".agent-hooks/state"
 STATE_FILE="${STATE_DIR}/pipeline_state"
 LOG_DIR="${STATE_DIR}/logs"
+REVIEW_INSTRUCTION="Full Rust verification passed. Before stopping, review the current uncommitted changes for correctness, regressions, security, test coverage, and documentation consistency. Fix every actionable finding within the requested scope. If you change Rust-related files, finish the fixes and let the Stop hook rerun verification before claiming completion. If there are no findings, report that explicitly and stop."
 RUST_PATHS=(
   ':(glob)*.rs'
   ':(glob)**/*.rs'
@@ -24,7 +25,7 @@ CHECK_FINGERPRINT=""
 VALIDATED_FINGERPRINT=""
 
 load_state() {
-  [ -f "${STATE_FILE}" ] || return
+  [ -f "${STATE_FILE}" ] || return 0
 
   while IFS='=' read -r key value; do
     case "${key}" in
@@ -125,7 +126,7 @@ if [ "${FINGERPRINT}" = "${VALIDATED_FINGERPRINT}" ]; then
   PHASE="done"
   CHECK_FINGERPRINT=""
   save_state
-  emit_stop "Validation pipeline already completed for the current Rust changes."
+  emit_stop "Validation and code review request already completed for the current Rust changes."
   exit 0
 fi
 
@@ -155,7 +156,7 @@ if run_and_log "build" "make build"; then
     VALIDATED_FINGERPRINT="${CHECK_FINGERPRINT}"
     CHECK_FINGERPRINT=""
     save_state
-    emit_stop "make build passed. Task complete."
+    emit_continue "${REVIEW_INSTRUCTION}"
   else
     PHASE="check_pending"
     CHECK_FINGERPRINT=""

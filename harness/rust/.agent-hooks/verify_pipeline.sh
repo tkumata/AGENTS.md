@@ -6,7 +6,7 @@ AGENT="${1:-codex}"
 STATE_DIR=".agent-hooks/state"
 STATE_FILE="${STATE_DIR}/pipeline_state"
 LOG_DIR="${STATE_DIR}/logs"
-REVIEW_INSTRUCTION="Full Rust verification passed. Before stopping, review the current uncommitted changes for correctness, regressions, security, test coverage, and documentation consistency. Fix every actionable finding within the requested scope. If you change Rust-related files, finish the fixes and let the Stop hook rerun verification before claiming completion. If there are no findings, report that explicitly and stop."
+REVIEW_INSTRUCTION="Full Rust verification passed. Before stopping, review only the current uncommitted Rust-related changes (*.rs, Cargo.toml, Cargo.lock, build.rs, rust-toolchain, rust-toolchain.toml, and .cargo/**) for correctness, regressions, security, and test coverage. Do not review unrelated changes, including Markdown files. Fix every actionable finding within the requested scope. If you change Rust-related files, finish the fixes and let the Stop hook rerun verification before claiming completion. If there are no findings, report that explicitly and stop."
 RUST_PATHS=(
   ':(glob)*.rs'
   ':(glob)**/*.rs'
@@ -91,32 +91,12 @@ emit_continue() {
   esac
 }
 
-emit_stop() {
-  local msg="$1"
-
-  case "${AGENT}" in
-    codex)
-      jq -nc --arg msg "${msg}" \
-        '{continue:false, stopReason:$msg, systemMessage:$msg}'
-      ;;
-    copilot)
-      jq -nc --arg msg "${msg}" \
-        '{continue:true, message:$msg}'
-      ;;
-    *)
-      jq -nc --arg msg "${msg}" \
-        '{continue:false, stopReason:$msg, systemMessage:$msg}'
-      ;;
-  esac
-}
-
 load_state
 
 if ! has_rust_changes; then
   PHASE="idle"
   CHECK_FINGERPRINT=""
   save_state
-  emit_stop "No Rust-related changes require validation."
   exit 0
 fi
 
@@ -126,7 +106,6 @@ if [ "${FINGERPRINT}" = "${VALIDATED_FINGERPRINT}" ]; then
   PHASE="done"
   CHECK_FINGERPRINT=""
   save_state
-  emit_stop "Validation and code review request already completed for the current Rust changes."
   exit 0
 fi
 

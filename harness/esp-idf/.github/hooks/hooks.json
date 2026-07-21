@@ -4,15 +4,9 @@
     "agentStop": [
       {
         "type": "command",
-        "bash": ".agent-hooks/check_build.sh",
+        "bash": "AGENT_KIND=copilot ./.agent-hooks/verify_pipeline.sh",
         "cwd": ".",
-        "timeoutSec": 120
-      },
-      {
-        "type": "command",
-        "bash": ".agent-hooks/check_size.sh",
-        "cwd": ".",
-        "timeoutSec": 120
+        "timeoutSec": 240
       }
     ]
   }

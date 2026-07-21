@@ -39,6 +39,8 @@ ln -s "$(pwd)/AGENTS.md" "$HOME/.copilot/copilot-instruction.md"
 
 外部ツール (clang-formatter, cppcheck, clang-tidy など) で Format, Lint チェックすると誤検知が多い (ESP-IDF が想定している状態と違う) ので `idf.py` を経由してチェックするために `idf.py build` と `idf.py size` を検知するようにしました。
 
+C/C++、assembly、ESP-IDF のビルド設定、component manifest、partition table、ハーネス設定に変更がある場合だけ、Stop フックは build と size を順番に実行します。両方の成功後、現在の未コミット変更を正しさ、回帰、セキュリティ、テスト、ドキュメント整合性の観点でコードレビューするよう自然言語で指示します。質問や Markdown のみの変更、および同一の検証済み差分では何も出力しません。レビューで関連ファイルを変更した場合は、次の Stop で build から再検証します。
+
 なお、`idf.py clang-format` は開発中のため除外しました。
 
 ### Rust の場合

@@ -1,4 +1,4 @@
-# ADR: Agent-neutral Stop-time Code Review
+# ADR: ESP-IDF Verification Before Code Review
 
 ## Status
 
@@ -6,43 +6,42 @@ Accepted
 
 ## Context
 
-Rust ハーネスは Rust 関連差分に対して `make check` と `make build` を実行するが、検証成功後に
-コードレビューを要求しない。レビュー結果を専用コマンドや JSON で受け取る方式は、対応する
-AI エージェントごとの実装を増やし、将来の Claude Code や Gemini への展開を妨げる。
+ESP-IDF ハーネスは Stop ごとに build と size を実行するため、質問や Markdown の作成でも
+時間とエージェントの処理を消費する。また、検証成功後の差分コードレビューがない。
 
 ## Decision
 
-Rust の build 成功後、現在の未コミット変更をコードレビューするよう自然言語でエージェントへ
-要求する。レビュー指示は正しさ、回帰、セキュリティ、テスト、ドキュメント整合性を対象とし、
-特定の AI エージェント名、専用コマンド、レビュー結果 JSON を含めない。
+ESP-IDF 関連差分の fingerprint が新しい場合だけ、build、size、自然言語コードレビューの順で
+実行する。関連差分がない場合と同一の検証済み fingerprint では、stdout を出さず終了する。
+レビュー修正で fingerprint が変わった場合は、次の Stop で build から再検証する。
 
-build 成功時の fingerprint を検証済みとして保存する。レビューで Rust 関連ファイルが変われば
-次の Stop で検証を再実行し、変わらなければ同一 fingerprint の検証を繰り返さない。
+関連差分には C/C++、assembly、ESP-IDF ビルド設定、component manifest、partition table、
+ハーネス設定を含め、Markdown は含めない。
 
 ## Rationale
 
-- 自然言語の指示本文を各エージェントで共有できる。
-- 既存の fingerprint がレビュー修正後の再検証も保証する。
-- レビュー専用状態、承認ファイル、追加スクリプトを不要にできる。
-- 製品差をフック設定と継続要求の出力形式へ限定できる。
+- build と size の成功後にレビューすることで、コンパイル不能または容量超過の差分に
+  レビュー時間を使わない。
+- レビュー修正後の再検証により、レビュー後の成果物も build と size の条件を満たす。
+- 一つのパイプラインで順序と fingerprint を管理できる。
+- 既存の build と size スクリプトを再利用できる。
 
 ## Consequences
 
-- build 成功後にエージェントの処理が1回継続する。
-- レビュー完了は、エージェントが指示に従い再度 Stop することで表現される。
-- 将来のエージェント追加時には、その製品のフック接続と応答形式を別途定義する必要がある。
+- 新しい関連差分の Stop は build と size の合計時間を必要とする。
+- build または size が失敗した場合、レビューは成功後の Stop まで延期される。
+- ビルドへ埋め込まれる任意拡張子の asset は、明示した関連パスに該当しない限り発火しない。
 
 ## Rejected Alternatives
 
-### Review Result JSON
+### Review Before Build
 
-レビュー判断を機械的に記録できるが、エージェントごとの呼び出し方法と入力契約が必要になるため
-採用しない。
+ビルド不能な差分もレビュー対象となり、レビュー修正後にも build が必要なため採用しない。
 
-### Dedicated Review Script
+### Independent Stop Hooks
 
-既存の Stop フックとは別の実行経路と状態同期が必要になり、構成が複雑になるため採用しない。
+build、size、review 間で fingerprint と成功状態を重複管理する必要があるため採用しない。
 
-### Agent-specific Review Commands
+### Review-specific Script
 
-対応製品の追加ごとにレビュー実装を作り直す必要があるため採用しない。
+自然言語メッセージだけで足り、追加の実行経路と状態同期が不要なため採用しない。

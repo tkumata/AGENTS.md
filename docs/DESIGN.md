@@ -86,6 +86,21 @@ build 成功後は検証済み fingerprint を保存し、フック出力のメ�
 レビュー指示本文はエージェント共通とし、Codex、Copilot、将来の Claude Code、Gemini の
 違いは、フック設定と継続要求の出力形式に限定する。
 
+## ESP-IDF Stop-time Verification and Review
+
+`.codex/hooks.json` と `.github/hooks/hooks.json` は Stop 時に
+`verify_pipeline.sh` だけを起動する。パイプラインは関連パスを列挙してファイル内容の
+fingerprint を生成し、検証済み fingerprint と一致する場合は無言で終了する。
+
+新しい fingerprint では既存の `check_build.sh` と `check_size.sh` を直列実行する。成功 JSON は
+パイプライン内で消費し、失敗時だけ既存スクリプトの JSON をフックへ返す。両方の成功後は
+自然言語レビュー指示を返し、fingerprint を `.agent-hooks/state/` に保存する。レビュー修正で
+fingerprint が変われば同じ経路を再実行する。これによりレビュー専用スクリプトや承認ファイルを
+追加しない。
+
+生成ログと状態は `.gitignore` の対象とし、検証自身が fingerprint を変えないようにする。
+Codex と GitHub Copilot の違いは継続要求 JSON の外形だけに限定する。
+
 ## Implementation Constraints
 
 - macOS 付属の古い Bash でも利用できる構文を使用する。

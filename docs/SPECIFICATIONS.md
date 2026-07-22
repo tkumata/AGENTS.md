@@ -92,16 +92,18 @@ Rust ハーネスは `*.rs`、`Cargo.toml`、`Cargo.lock`、`build.rs`、Rust to
 `.cargo/` 配下の HEAD からの変更を fingerprint の対象とする。対象変更がある場合は Stop ごとに
 次の状態を進める。
 
+対象変更がない場合は状態を idle に戻し、フック応答を出力せず終了する。
+
 1. `make check` を実行し、成功した fingerprint を build 対象として保存する。
 2. fingerprint が変わっていなければ `make build` を実行する。
 3. build 成功後も fingerprint が変わっていなければ検証済みとして保存し、自然言語で
-   現在の未コミット変更のコードレビューを要求する。
+   Rust 関連差分だけのコードレビューを要求する。Markdown など無関係な差分は対象外とする。
 4. レビューによって fingerprint が変われば、次の Stop で手順1から再実行する。
-5. fingerprint が変わらなければ、次の Stop で同じ検証を繰り返さず終了を許可する。
+5. fingerprint が変わらなければ、次の Stop で同じ検証を繰り返さず、フック応答を出力せず終了する。
 
-レビュー指示は正しさ、回帰、セキュリティ、テスト網羅性、ドキュメント整合性を確認し、
-依頼範囲内の actionable finding をすべて修正するよう要求する。指摘がない場合は、その旨を
-明示して停止するよう要求する。
+レビュー指示は Rust 関連差分の正しさ、回帰、セキュリティ、テスト網羅性を確認し、依頼範囲内の
+actionable finding をすべて修正するよう要求する。指摘がない場合は、その旨を明示して停止する
+よう要求する。
 
 ## ESP-IDF Stop-time Verification and Review
 

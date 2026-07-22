@@ -77,11 +77,14 @@ dry-run は通常実行と同じ staging 完了後に分岐し、配置先へ書
 `harness/rust/.agent-hooks/verify_pipeline.sh` は、Rust 関連差分の fingerprint と
 `check_pending`、`build_pending`、`done` の状態を管理する。既存の検証済み fingerprint を
 レビュー要求後の再入防止にも利用し、レビュー専用の状態ファイルや承認入力は追加しない。
+Rust 関連差分がない場合と fingerprint が検証済みの場合は JSON を出力せず終了し、エージェントへ
+不要なメッセージを投入しない。
 
 build 成功後は検証済み fingerprint を保存し、フック出力のメッセージとして自然言語の
-レビュー指示を返す。同じエージェントが現在の未コミット変更をレビューし、修正した場合は
-次の Stop で fingerprint の差により検証が再開される。修正がない場合は、次の Stop を
-レビュー完了の意思表示として扱い、同一 fingerprint の検証を繰り返さない。
+レビュー指示を返す。同じエージェントが Rust 関連差分だけをレビューし、Markdown など無関係な
+差分は対象にしない。Rust 関連ファイルを修正した場合は、次の Stop で fingerprint の差により
+検証が再開される。修正がない場合は、次の Stop をレビュー完了の意思表示として扱い、同一
+fingerprint の検証を繰り返さない。
 
 レビュー指示本文はエージェント共通とし、Codex、Copilot、将来の Claude Code、Gemini の
 違いは、フック設定と継続要求の出力形式に限定する。

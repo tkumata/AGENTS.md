@@ -98,7 +98,7 @@ fi
 
 (
   cd "$REPO_ROOT" || exit 1
-  # shellcheck disable=SC1090
+  # shellcheck source=~/.espressif/v6.0/esp-idf/export.sh
   source "$EXPORT_SCRIPT"
   idf.py size
 ) >> "$RUN_LOG" 2>&1

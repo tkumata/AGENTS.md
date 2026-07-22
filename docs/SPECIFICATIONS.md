@@ -105,6 +105,24 @@ Rust ハーネスは `*.rs`、`Cargo.toml`、`Cargo.lock`、`build.rs`、Rust to
 actionable finding をすべて修正するよう要求する。指摘がない場合は、その旨を明示して停止する
 よう要求する。
 
+## ESP-IDF Stop-time Verification and Review
+
+ESP-IDF ハーネスは、次の HEAD からの変更と未追跡ファイルを fingerprint の対象とする。
+
+- C/C++、assembly、linker script: `.c`、`.h`、`.cc`、`.cpp`、`.cxx`、`.hh`、`.hpp`、`.hxx`、`.s`、`.S`、`.ld`、`.ld.in`
+- ビルド設定: `CMakeLists.txt`、`.cmake`、`Kconfig*`、`sdkconfig*`
+- dependency、component、partition: `dependencies.lock`、`idf_component.yml`、`idf_component.yaml`、`partitions*.csv`
+- ハーネス設定: `.agent-hooks/`、`.codex/hooks.json`、`.github/hooks/hooks.json`
+
+対象がなければ stdout を出さず終了する。新しい fingerprint では `check_build.sh`、
+`check_size.sh` の順に実行し、どちらかが失敗した場合はそのスクリプトの失敗 JSON を返して
+レビューしない。
+
+両方が成功し、検証中に fingerprint が変わっていなければ、正しさ、回帰、セキュリティ、
+テスト網羅性、ドキュメント整合性を確認するコードレビューを自然言語で要求して fingerprint を
+保存する。レビューで対象ファイルが変われば次の Stop で build から再検証し、同一 fingerprint
+なら stdout を出さず終了する。Markdown は fingerprint の対象に含めない。
+
 ## Verification Scenarios
 
 1. 空の配置先へ各環境をインストールする。
@@ -122,6 +140,8 @@ actionable finding をすべて修正するよう要求する。指摘がない�
 13. Rust の build 成功後に、エージェント中立な自然言語でコードレビューを要求する。
 14. レビュー修正で Rust fingerprint が変わった場合、`make check` から再実行する。
 15. 同一の検証済み fingerprint では check、build、レビュー要求を繰り返さない。
-16. Markdown のみの差分では check、build、レビュー要求、フック応答出力を実行しない。
-17. Rust 関連差分と Markdown 差分が混在しても、レビュー対象を Rust 関連差分だけに限定する。
-18. 同一の検証済み Rust fingerprint ではフック応答を出力しない。
+16. ESP-IDF 関連差分がない場合は stdout を出さず、build と size を実行しない。
+17. ESP-IDF 関連差分では build、size、自然言語レビューの順に実行する。
+18. ESP-IDF build 失敗時は size とレビューを実行しない。
+19. ESP-IDF の同一検証済み fingerprint では処理を繰り返さない。
+20. ESP-IDF 関連差分が変われば build から再検証する。

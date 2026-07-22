@@ -1,4 +1,4 @@
-# ADR: Silent Stop Hook When Rust Verification Is Unnecessary
+# ADR: ESP-IDF Verification Before Code Review
 
 ## Status
 
@@ -6,29 +6,42 @@ Accepted
 
 ## Context
 
-Stop フックは Rust 関連差分がない場合も `systemMessage` を含む JSON を返していた。検証やレビューを
-実行しなくても、この応答がエージェントへの不要なプロンプトとなり使用量を消費する。
+ESP-IDF ハーネスは Stop ごとに build と size を実行するため、質問や Markdown の作成でも
+時間とエージェントの処理を消費する。また、検証成功後の差分コードレビューがない。
 
 ## Decision
 
-Rust 関連差分がない場合と同一の検証済み fingerprint の場合は、状態だけを保存して標準出力へ
-何も出さず終了する。Rust 関連差分がある場合だけ `make check`、`make build`、Rust 関連差分の
-レビュー要求を順番に実行する。
+ESP-IDF 関連差分の fingerprint が新しい場合だけ、build、size、自然言語コードレビューの順で
+実行する。関連差分がない場合と同一の検証済み fingerprint では、stdout を出さず終了する。
+レビュー修正で fingerprint が変わった場合は、次の Stop で build から再検証する。
+
+関連差分には C/C++、assembly、ESP-IDF ビルド設定、component manifest、partition table、
+ハーネス設定を含め、Markdown は含めない。
 
 ## Rationale
 
-- 処理不要の Stop でエージェントを再起動しない。
-- 既存の差分判定と状態遷移を変更せず、不要な出力の削除だけで実現できる。
-- エージェントの使用量を Rust 検証が必要な場合だけに限定できる。
+- build と size の成功後にレビューすることで、コンパイル不能または容量超過の差分に
+  レビュー時間を使わない。
+- レビュー修正後の再検証により、レビュー後の成果物も build と size の条件を満たす。
+- 一つのパイプラインで順序と fingerprint を管理できる。
+- 既存の build と size スクリプトを再利用できる。
 
 ## Consequences
 
-- Rust 関連差分がない Stop では進捗メッセージも返さない。
-- 同一の検証済み fingerprint ではレビュー要求を繰り返さない。
-- check、build、レビュー、失敗時の修正要求は従来どおり出力する。
+- 新しい関連差分の Stop は build と size の合計時間を必要とする。
+- build または size が失敗した場合、レビューは成功後の Stop まで延期される。
+- ビルドへ埋め込まれる任意拡張子の asset は、明示した関連パスに該当しない限り発火しない。
 
-## Rejected Alternative
+## Rejected Alternatives
 
-### Return a No-op Message
+### Review Before Build
 
-処理不要であることを伝えるだけでもプロンプト投入と使用量が発生するため採用しない。
+ビルド不能な差分もレビュー対象となり、レビュー修正後にも build が必要なため採用しない。
+
+### Independent Stop Hooks
+
+build、size、review 間で fingerprint と成功状態を重複管理する必要があるため採用しない。
+
+### Review-specific Script
+
+自然言語メッセージだけで足り、追加の実行経路と状態同期が不要なため採用しない。

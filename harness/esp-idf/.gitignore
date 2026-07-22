@@ -1,1 +1,2 @@
-.agent-hooks/log/
+.agent-hooks/logs/
+.agent-hooks/state/

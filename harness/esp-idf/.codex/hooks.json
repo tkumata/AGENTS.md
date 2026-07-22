@@ -6,15 +6,9 @@
         "hooks": [
           {
             "type": "command",
-            "command": ".agent-hooks/check_build.sh",
-            "timeout": 120,
-            "statusMessage": "Checking ESP-IDF build"
-          },
-          {
-            "type": "command",
-            "command": ".agent-hooks/check_size.sh",
-            "timeout": 120,
-            "statusMessage": "Checking ESP-IDF size"
+            "command": "AGENT_KIND=codex ./.agent-hooks/verify_pipeline.sh",
+            "timeout": 240,
+            "statusMessage": "Verifying ESP-IDF changes"
           }
         ]
       }

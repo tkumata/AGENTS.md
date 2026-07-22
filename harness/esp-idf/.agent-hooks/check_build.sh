@@ -111,7 +111,7 @@ resolve_python_env
 
 (
   cd "$REPO_ROOT" || exit 1
-  # shellcheck disable=SC1090
+  # shellcheck source=~/.espressif/v6.0/esp-idf/export.sh
   source "$EXPORT_SCRIPT"
   if [ -n "$IDF_PYTHON_COMMAND" ]; then
     "$IDF_PYTHON_COMMAND" "$IDF_ROOT/tools/idf.py" build

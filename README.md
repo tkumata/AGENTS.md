@@ -1,6 +1,6 @@
 # AGENTS.md
 
-各社のエージェントや個々のプロジェクトに依存しないプロジェクトとしての共通部分を基本として記述しました。可能な限り50行以下を目指し、定量的なものはハーネスに記述するようにしました。
+各社のエージェントや個々のプロジェクトに依存しないプロジェクトとしての共通部分を基本として記述しました。定量的なものはハーネスに記述するようにし、AI が生成するソースコードの品質に関しては Skills に記述するようにしました。
 
 また、以下のようなやり取りにうんざりしてたので、`Stop hook` でビルド、コードレビューなどを強制するハーネスを作成しました。他にも `PreToolUse hook` で禁止コマンドも強制させました。
 
@@ -28,6 +28,15 @@ ln -s "$(pwd)/AGENTS.md" "$HOME/.claude/CLAUDE.md"
 
 # setup for Copilot CLI
 ln -s "$(pwd)/AGENTS.md" "$HOME/.copilot/copilot-instruction.md"
+```
+
+## Skills の使い方
+
+```sh
+# setup for Codex (CLI and App)
+ln -s "$(pwd)/Skills/clean-code-change" "$HOME/.codex/skills/clean-code-change"
+ln -s "$(pwd)/Skills/clean-code-review" "$HOME/.codex/skills/clean-code-review"
+ln -s "$(pwd)/Skills/plan-before-implementation" "$HOME/.codex/skills/plan-before-implementation"
 ```
 
 ## ハーネス

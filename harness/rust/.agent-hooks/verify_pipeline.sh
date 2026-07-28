@@ -135,7 +135,7 @@ if run_and_log "build" "make build"; then
     VALIDATED_FINGERPRINT="${CHECK_FINGERPRINT}"
     CHECK_FINGERPRINT=""
     save_state
-    emit_continue "${REVIEW_INSTRUCTION}"
+    # emit_continue "${REVIEW_INSTRUCTION}"
   else
     PHASE="check_pending"
     CHECK_FINGERPRINT=""

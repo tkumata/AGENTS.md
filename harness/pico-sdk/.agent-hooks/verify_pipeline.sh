@@ -137,7 +137,7 @@ run_full_check() {
 
   mkdir -p "${LOG_DIR}"
   if ./.agent-hooks/check.sh > "${log}" 2>&1; then
-    request_review
+    # request_review
     write_cached_state "success" "${fingerprint}"
     return 0
   fi

@@ -1,8 +1,10 @@
 # Global Agent Instructions
 
+In Code Mode, within each bounded stage, run independent, functions.exec-available tool calls concurrently in one functions.exec call. Use await Promise.allSettled([...]) when partial results are useful, and inspect every result; use await Promise.all([...]) only when any failure should abort the batch. Keep dependencies, waits/resumes, approvals, conflicting or interdependent mutations, and adaptive investigations where each result may change the next step sequential. Do not split otherwise batchable inspections across outer tool calls.
+
 ## Language
 
-* ユーザーへの説明、進捗、計画、文書、最終回答は日本語で行うこと。
+* ユーザへの説明、進捗、計画、文書、最終回答は日本語で行うこと。
 * コード、識別子、コマンド、ファイル名、ログ、API 名は必要に応じて原文を維持すること。
 * コード内のコメントと既存文書は、リポジトリの言語規約に従うこと。
 
@@ -10,7 +12,7 @@
 
 * リポジトリ固有の `AGENTS.md`、設計文書、規約、検証手順を確認して追加適用すること。
 * より具体的なリポジトリ固有指示を優先すること。
-* ただし、承認ゲート、ユーザー変更の保護、Git の安全規則は、明示的な指示なしに緩和しないこと。
+* ただし、承認ゲート、ユーザ変更の保護、Git の安全規則は、明示的な指示なしに緩和しないこと。
 
 ## Core rules
 
@@ -29,12 +31,11 @@
 * 承認前には、読み取り、検索、現状検証、問題再現、開発文書の作成または更新のみ行ってよい。
 * 承認は提示した計画、設計、対象範囲、フェーズにのみ適用する。
 * 重大な前提変更、設計変更、範囲拡大、新しい依存関係が必要なら、文書を更新して再承認を得ること。
-* ユーザーが明示的に承認待ちを不要とした作業に限り、承認ゲートを省略してよい。
+* ユーザが明示的に承認待ちを不要とした作業に限り、承認ゲートを省略してよい。
 
 ## Documentation
 
-既存の文書構成に従うこと。構成がなければ `docs/PLAN.md` を使用し、必要な場合だけ
-`REQUIREMENTS.md`、`SPECIFICATIONS.md`、`DESIGN.md`、ADR を追加または更新すること。
+既存の文書構成に従うこと。構成がなければ `docs/PLAN.md` を使用し、必要な場合だけ `REQUIREMENTS.md`、`SPECIFICATIONS.md`、`DESIGN.md`、ADR を追加または更新すること。
 
 * `PLAN.md`: 目的、現状、範囲、方針、変更対象、フェーズ、成功条件、検証方法、リスク
 * `REQUIREMENTS.md`: 要求または受け入れ条件を変更する場合
@@ -42,8 +43,7 @@
 * `DESIGN.md`: 責務、依存方向、外部境界、状態管理を変更する場合
 * ADR: 長期的な変更コストを持つ重要な設計判断を行う場合
 
-空文書や説明の重複を作らず、実装によって意味が変わる文書だけを同期すること。
-複数フェーズは独立して検証可能にし、別セッションが `Phase N` の指示で再開できる情報を残すこと。
+空文書や説明の重複を作らず、実装によって意味が変わる文書だけを同期すること。複数フェーズは独立して検証可能にし、別セッションが `Phase N` の指示で再開できる情報を残すこと。
 
 ## Quality and validation
 
@@ -59,10 +59,8 @@
 
 ## Git safety
 
-* Git 操作前に作業ツリーを確認し、ユーザーの変更を上書き、削除、破棄、退避しないこと。
-* 明示的な許可なしに、`git reset --hard`、`git checkout -- <path>`、
-  `git restore --source=<source> -- <path>`、`git clean -fd[x]`、強制 push、
-  履歴の書き換えを行わないこと。
+* Git 操作前に作業ツリーを確認し、ユーザの変更を上書き、削除、破棄、退避しないこと。
+* 明示的な許可なしに、`git reset --hard`、`git checkout -- <path>`、`git restore --source=<source> -- <path>`、`git clean -fd[x]`、強制 push、履歴の書き換えを行わないこと。
 
 ## Required skills
 

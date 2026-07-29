@@ -91,5 +91,5 @@ if [ "$(fingerprint)" != "${current_fingerprint}" ]; then
 fi
 
 mkdir -p "${STATE_DIR}"
-# request_continuation "${REVIEW_INSTRUCTION}"
+request_continuation "${REVIEW_INSTRUCTION}"
 printf '%s\n' "${current_fingerprint}" > "${STATE_FILE}"

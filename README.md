@@ -35,7 +35,6 @@ ln -s "$(pwd)/AGENTS.md" "$HOME/.copilot/copilot-instruction.md"
 ```sh
 # setup for Codex (CLI and App)
 ln -s "$(pwd)/Skills/clean-code-change" "$HOME/.codex/skills/clean-code-change"
-ln -s "$(pwd)/Skills/clean-code-review" "$HOME/.codex/skills/clean-code-review"
 ln -s "$(pwd)/Skills/plan-before-implementation" "$HOME/.codex/skills/plan-before-implementation"
 ```
 

@@ -66,5 +66,4 @@ In Code Mode, within each bounded stage, run independent, functions.exec-availab
 
 * ソースコード、テスト、設定、依存関係を変更する前に `plan-before-implementation` を使用すること。
 * 承認後の実装に `clean-code-change` を使用すること。
-* 実装完了後、またはレビュー依頼時に `clean-code-review` を使用すること。
 * 重複する場合も、このファイルの承認ゲートと安全規則を最低条件とすること。

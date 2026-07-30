@@ -1,21 +1,6 @@
 # AGENTS.md
 
-各社のエージェントや個々のプロジェクトに依存しないプロジェクトとしての共通部分を基本として記述しました。定量的なものはハーネスに記述するようにし、AI が生成するソースコードの品質に関しては Skills に記述するようにしました。
-
-また、以下のようなやり取りにうんざりしてたので、`Stop hook` でビルド、コードレビューなどを強制するハーネスを作成しました。他にも `PreToolUse hook` で禁止コマンドも強制させました。
-
-自然言語による指示だと、AI が言うことを聞かないことが多々あるので、ハーネス技術はありがたいです👍
-
-```text
-私: Phase 1 を実装して。
-AI： Phase 1 の実装が完了しました。
-私: じゃあ差分見て……ビルドして……あ、エラーが出た。コピペして……「これを直して」っと……。
-AI: 修正しました。
-
-以下略
-```
-
-hook から `/ponytail-review` や `/review` を実行しても hook から抜けてしまうので、コードレビュー自体は自然言語で指示してレビュー結果をエージェントに渡して処理を継続させるようにしました。レビュー結果の指示は、コードレビューの観点で正しさ、回帰、セキュリティ、テスト、ドキュメント整合性の5つの観点でレビューするようにしています。
+各社のエージェントや個々のプロジェクトに依存しないようなグローバル AGENTS.md を作成しました。また、ソースコードの品質を意識してハーネスやスキルも併せて作成しました。
 
 ## AGENTS.md の使い方
 
@@ -36,6 +21,14 @@ ln -s "$(pwd)/AGENTS.md" "$HOME/.copilot/copilot-instruction.md"
 # setup for Codex (CLI and App)
 ln -s "$(pwd)/Skills/clean-code-change" "$HOME/.codex/skills/clean-code-change"
 ln -s "$(pwd)/Skills/plan-before-implementation" "$HOME/.codex/skills/plan-before-implementation"
+
+# setup for Claude Code
+ln -s "$(pwd)/Skills/clean-code-change" "$HOME/.claude/skills/clean-code-change"
+ln -s "$(pwd)/Skills/plan-before-implementation" "$HOME/.claude/skills/plan-before-implementation"
+
+# setup for Copilot CLI
+ln -s "$(pwd)/Skills/clean-code-change" "$HOME/.copilot/skills/clean-code-change"
+ln -s "$(pwd)/Skills/plan-before-implementation" "$HOME/.copilot/skills/plan-before-implementation"
 ```
 
 ## ハーネス

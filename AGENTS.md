@@ -35,14 +35,33 @@ In Code Mode, within each bounded stage, run independent, functions.exec-availab
 
 ## Documentation
 
-既存の文書構成に従うこと。構成がなければ `docs/PLAN.md` を使用し、必要な場合だけ `REQUIREMENTS.md`、`SPECIFICATIONS.md`、`DESIGN.md`、`ADR.md`、`PRD.md` を追加または更新すること。
+既存の文書構成を優先する。構成がなければ次を使用する。
 
-* `PLAN.md`: 目的、現状、範囲、方針、変更対象、フェーズ、成功条件、検証方法、リスク
-* `REQUIREMENTS.md`: 要求または受け入れ条件を変更する場合
-* `SPECIFICATIONS.md`: 外部動作、入出力、状態遷移、エラー時動作を変更する場合
-* `DESIGN.md`: 責務、依存方向、外部境界、状態管理を変更する場合
-* `ADR.md`: 長期的な変更コストを持つ重要な設計判断を行う場合
-* `PRD.md`: 背景、ゴール、スコープ、ユーザーストーリー、受け入れ条件、制約、リスクを変更する場合
+```text
+docs/
+├── current/                    # 現在有効な要求・仕様・設計
+│   ├── DESIGN.md
+│   ├── REQUIREMENTS.md
+│   ├── PRD.md
+│   └── SPECIFICATIONS.md
+├── plans/
+│   ├── active/                 # 進行中の実行計画
+│   │   ├─ plan-2026-08-05.md
+│   │   └─ plan-2026-08-06.md
+│   └── completed/              # 完了した実行計画
+│       ├─ plan-2026-07-30.md
+│       └─ plan-2026-07-31.md
+└── adr/                        # 1判断1ファイルの ADR
+    ├─ 001-use-graphql.md
+    └─ 002-use-rest-api.md
+```
+
+* 複数フェーズまたは別セッションへ継続する変更では、案件ごとに `docs/plans/active/YYYY-MM-DD-name.md` を作成する。
+* 実行計画には目的、範囲、方針、フェーズ、成功条件、検証、進捗、再開地点を残す。
+* 完了後は現在文書を同期し、実行計画を `completed/` へ移動する。
+* ADRは重要な設計判断ごとに新規作成し、既存の判断内容を上書きしない。
+* 空文書や説明の重複を作らず、意味が変わる文書だけを更新する。
+* 詳細な文書規約は `docs/README.md` に記載する。
 
 空文書や説明の重複を作らず、実装によって意味が変わる文書だけを同期すること。複数フェーズは独立して検証可能にし、別セッションが `Phase N` の指示で再開できる情報を残すこと。
 

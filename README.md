@@ -1,6 +1,15 @@
 # AGENTS.md
 
-各社のエージェントや個々のプロジェクトに依存しないような汎用的な指示をグローバル AGENTS.md にまとめました。また、ソースコードの品質を意識してハーネスやスキルも併せて作成しました。
+生成 AI の性能が驚くような速度で進歩している状況でも、「開発」は「何を解決するのか」「誰に届けるのか」「開発者の入れ替えで進捗速度が左右されない」など原始的かつ根本的な部分は変わらないと考えてます。そこで、AI 時代でも開発に必要な以下の事柄を雛形として運用できるのではないかと考えました。
+
+- ドキュメントの管理・運用
+- ソースコードの品質 (可読性や保守性)
+
+本プロジェクトには、グローバル AGENTS.md、スキル、ハーネスを残しています。グローバル AGENTS.md は、AI プロバイダや各々のプロジェクトに依存しないような汎用的なルールで、ドキュメント、ソースコード品質を定めています。
+
+スキルやハーネスはソースコード品質やテストや検証を決定論的に実行するので見逃しがなくなり、結果的に製品の質が上がると考えています。
+
+最終的に brain dump を AI に渡すだけで、ドキュメンテーション・実装・検証まで完了することを目指してます。現状は、ドキュメンテーションまで完了し人間の確認・承認を待つようにしています。
 
 ## AGENTS.md の使い方
 
@@ -15,7 +24,7 @@ ln -s "$(pwd)/AGENTS.md" "$HOME/.claude/CLAUDE.md"
 ln -s "$(pwd)/AGENTS.md" "$HOME/.copilot/copilot-instruction.md"
 ```
 
-## Skills の使い方
+## SKILL の使い方
 
 ```sh
 # setup for Codex (CLI and App)
@@ -29,6 +38,12 @@ ln -s "$(pwd)/Skills/plan-before-implementation" "$HOME/.claude/skills/plan-befo
 # setup for Copilot CLI
 ln -s "$(pwd)/Skills/clean-code-change" "$HOME/.copilot/skills/clean-code-change"
 ln -s "$(pwd)/Skills/plan-before-implementation" "$HOME/.copilot/skills/plan-before-implementation"
+```
+
+## docs-README の使い方
+
+```sh
+ln -s "$(pwd)/docs-README.md" "<your_repository>/docs/README.md"
 ```
 
 ## ハーネス
@@ -47,11 +62,11 @@ ln -s "$(pwd)/Skills/plan-before-implementation" "$HOME/.copilot/skills/plan-bef
 
 `--dry-run` を指定すると、通常実行と同じ競合検査を行い、新規配置またはマージする予定のファイルと件数を表示します。インストール先は変更しません。
 
-### Pico-SDK の場合 (組み込み C/C++)
+### Pico-SDK の場合
 
 `.h`, `.c`, `.cpp`, `.hpp`, `.cmake` などソースコードファイルの fingerprint を見て、違いがあればフォーマットチェックとビルドを行い、結果をエージェントに返します。これにより、多純な質問などではハーネスが発火せずソースコードなどを編集した時だけハーネスが発火します。
 
-### ESP-IDF の場合 (組み込み C/C++)
+### ESP-IDF の場合
 
 外部ツール (clang-formatter, cppcheck, clang-tidy など) で Format, Lint チェックすると誤検知が多い (ESP-IDF が想定している記述と違うっぽい) ので `idf.py` を経由してチェックするために `idf.py build` と `idf.py size` を実施するようにしました。
 
@@ -67,13 +82,11 @@ Rust 関連ファイルに変更がある場合、`Stop hook` は fingerprint �
 
 レビューで Rust 関連ファイルを変更した場合は、次の `Stop hook` で検証をやり直します。
 
----
-
 ## おまけ: GitHub Copilot の日本語化
 
-コミットメッセージやレビューコメントを一括で日本語化します。コミットメッセージは VS Code 上だし、レビューコメントは GitHub 上だし、一括設定でどうするのかと言いますと `~/Library/Application Support/Code/User/settings.json` を以下のようにします。
+最近分かったのですが、下記を記述してると「Generate Commit Message」ボタンが機能しなくなる場合があります。一度機能しなくなると数日間機能しなくなります。
 
-最近分かったのですが、下記を記述してると「Generate Commit Message」が機能しなくなる場合があります。一度機能しなくなると数日間機能しなくなります。不要かもです。
+コミットメッセージやレビューコメントを一括で日本語化します。コミットメッセージは VS Code 上だし、レビューコメントは GitHub 上だし、一括設定でどうするのかと言いますと `~/Library/Application Support/Code/User/settings.json` を以下のようにします。
 
 ```json
 {

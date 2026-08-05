@@ -35,13 +35,14 @@ In Code Mode, within each bounded stage, run independent, functions.exec-availab
 
 ## Documentation
 
-既存の文書構成に従うこと。構成がなければ `docs/PLAN.md` を使用し、必要な場合だけ `REQUIREMENTS.md`、`SPECIFICATIONS.md`、`DESIGN.md`、ADR を追加または更新すること。
+既存の文書構成に従うこと。構成がなければ `docs/PLAN.md` を使用し、必要な場合だけ `REQUIREMENTS.md`、`SPECIFICATIONS.md`、`DESIGN.md`、`ADR.md`、`PRD.md` を追加または更新すること。
 
 * `PLAN.md`: 目的、現状、範囲、方針、変更対象、フェーズ、成功条件、検証方法、リスク
 * `REQUIREMENTS.md`: 要求または受け入れ条件を変更する場合
 * `SPECIFICATIONS.md`: 外部動作、入出力、状態遷移、エラー時動作を変更する場合
 * `DESIGN.md`: 責務、依存方向、外部境界、状態管理を変更する場合
-* ADR: 長期的な変更コストを持つ重要な設計判断を行う場合
+* `ADR.md`: 長期的な変更コストを持つ重要な設計判断を行う場合
+* `PRD.md`: 背景、ゴール、スコープ、ユーザーストーリー、受け入れ条件、制約、リスクを変更する場合
 
 空文書や説明の重複を作らず、実装によって意味が変わる文書だけを同期すること。複数フェーズは独立して検証可能にし、別セッションが `Phase N` の指示で再開できる情報を残すこと。
 

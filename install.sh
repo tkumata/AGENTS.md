@@ -4,6 +4,10 @@ set -u
 
 installer_dir=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd -P) || exit 1
 merge_helper="$installer_dir/merge.py"
+docs_template="$installer_dir/docs-README.md"
+agents_source_dir="$installer_dir/agents"
+codex_dir="$HOME/.codex"
+codex_agents_dir="$codex_dir/agents"
 dry_run=0
 help_requested=0
 
@@ -48,6 +52,14 @@ if [ ! -f "$merge_helper" ]; then
   printf 'エラー: マージスクリプトが見つかりません: %s\n' "$merge_helper" >&2
   exit 1
 fi
+if [ ! -f "$docs_template" ]; then
+  printf 'エラー: 文書テンプレートが見つかりません: %s\n' "$docs_template" >&2
+  exit 1
+fi
+if [ ! -d "$agents_source_dir" ]; then
+  printf 'エラー: エージェント設定が見つかりません: %s\n' "$agents_source_dir" >&2
+  exit 1
+fi
 
 printf 'インストール先プロジェクトのパス: '
 if ! IFS= read -r target_input || [ -z "$target_input" ]; then
@@ -88,12 +100,52 @@ if [ ! -d "$source_dir" ]; then
   exit 1
 fi
 
+if { [ -e "$codex_dir" ] || [ -L "$codex_dir" ]; } && \
+  { [ ! -d "$codex_dir" ] || [ -L "$codex_dir" ]; }; then
+  printf 'エラー: エージェント配置先と衝突しています: %s\n' "$codex_dir" >&2
+  exit 1
+fi
+if { [ -e "$codex_agents_dir" ] || [ -L "$codex_agents_dir" ]; } && \
+  { [ ! -d "$codex_agents_dir" ] || [ -L "$codex_agents_dir" ]; }; then
+  printf 'エラー: エージェント配置先と衝突しています: %s\n' "$codex_agents_dir" >&2
+  exit 1
+fi
+
+template_paths() {
+  find "$source_dir" -mindepth 1 -print0
+  printf '%s\0' "$docs_template"
+}
+
+template_files() {
+  find "$source_dir" -mindepth 1 -type f -print0
+  printf '%s\0' "$docs_template"
+}
+
+template_relative_path() {
+  if [ "$1" = "$docs_template" ]; then
+    printf 'docs/README.md'
+  else
+    printf '%s' "${1#"$source_dir"/}"
+  fi
+}
+
+agent_files() {
+  find "$agents_source_dir" -maxdepth 1 -type f -name '*-worker.toml' -print0
+}
+
 staging_dir=$(mktemp -d "${TMPDIR:-/tmp}/harness-installer.XXXXXX") || exit 1
 trap 'rm -rf "$staging_dir"' EXIT HUP INT TERM
 
 conflict_found=0
+docs_destination_dir="$target_dir/docs"
+if { [ -e "$docs_destination_dir" ] || [ -L "$docs_destination_dir" ]; } && \
+  { [ ! -d "$docs_destination_dir" ] || [ -L "$docs_destination_dir" ]; }; then
+  printf 'エラー: 配置先と衝突しています: docs\n' >&2
+  conflict_found=1
+fi
+
 while IFS= read -r -d '' source_path; do
-  relative_path=${source_path#"$source_dir"/}
+  relative_path=$(template_relative_path "$source_path")
   destination_path="$target_dir/$relative_path"
 
   if [ -L "$source_path" ]; then
@@ -127,7 +179,7 @@ while IFS= read -r -d '' source_path; do
     printf 'エラー: 未対応のテンプレートパスです: %s\n' "$relative_path" >&2
     conflict_found=1
   fi
-done < <(find "$source_dir" -mindepth 1 -print0)
+done < <(template_paths)
 
 if [ "$conflict_found" -ne 0 ]; then
   exit 1
@@ -137,7 +189,7 @@ if [ "$dry_run" -eq 1 ]; then
   copied_count=0
   merged_count=0
   while IFS= read -r -d '' source_path; do
-    relative_path=${source_path#"$source_dir"/}
+    relative_path=$(template_relative_path "$source_path")
     destination_path="$target_dir/$relative_path"
     staged_path="$staging_dir/$relative_path"
     if [ ! -e "$destination_path" ]; then
@@ -147,8 +199,19 @@ if [ "$dry_run" -eq 1 ]; then
       printf '予定: マージ: %s\n' "$relative_path"
       merged_count=$((merged_count + 1))
     fi
-  done < <(find "$source_dir" -mindepth 1 -type f -print0)
+  done < <(template_files)
 
+  agent_count=0
+  while IFS= read -r -d '' source_path; do
+    agent_name=${source_path##*/}
+    destination_path="$codex_agents_dir/$agent_name"
+    if [ ! -e "$destination_path" ] && [ ! -L "$destination_path" ]; then
+      printf '予定: 新規: %s\n' "$destination_path"
+      agent_count=$((agent_count + 1))
+    fi
+  done < <(agent_files)
+
+  printf 'dry-runエージェント: %s\n' "$agent_count"
   printf 'dry-run完了: %s -> %s (新規: %s, マージ: %s)\n' \
     "$environment" "$target_dir" "$copied_count" "$merged_count"
   exit 0
@@ -165,10 +228,17 @@ while IFS= read -r -d '' source_path; do
   fi
 done < <(find "$source_dir" -mindepth 1 -type d -print0)
 
+if [ ! -d "$docs_destination_dir" ]; then
+  if ! mkdir -- "$docs_destination_dir"; then
+    printf 'エラー: ディレクトリを作成できません: docs\n' >&2
+    exit 1
+  fi
+fi
+
 copied_count=0
 merged_count=0
 while IFS= read -r -d '' source_path; do
-  relative_path=${source_path#"$source_dir"/}
+  relative_path=$(template_relative_path "$source_path")
   destination_path="$target_dir/$relative_path"
   staged_path="$staging_dir/$relative_path"
   if [ ! -e "$destination_path" ]; then
@@ -188,7 +258,25 @@ while IFS= read -r -d '' source_path; do
     fi
     merged_count=$((merged_count + 1))
   fi
-done < <(find "$source_dir" -mindepth 1 -type f -print0)
+done < <(template_files)
+
+agent_count=0
+while IFS= read -r -d '' source_path; do
+  agent_name=${source_path##*/}
+  destination_path="$codex_agents_dir/$agent_name"
+  if [ ! -e "$destination_path" ] && [ ! -L "$destination_path" ]; then
+    if [ ! -d "$codex_agents_dir" ] && ! mkdir -p -- "$codex_agents_dir"; then
+      printf 'エラー: エージェント配置先を作成できません: %s\n' "$codex_agents_dir" >&2
+      exit 1
+    fi
+    if ! cp -p -- "$source_path" "$destination_path"; then
+      printf 'エラー: エージェント設定を配置できません: %s\n' "$agent_name" >&2
+      exit 1
+    fi
+    agent_count=$((agent_count + 1))
+  fi
+done < <(agent_files)
 
 printf 'インストール完了: %s -> %s (新規: %s, マージ: %s)\n' \
   "$environment" "$target_dir" "$copied_count" "$merged_count"
+printf 'エージェント配置完了: %s\n' "$agent_count"

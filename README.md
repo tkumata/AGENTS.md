@@ -42,9 +42,13 @@ ln -s "$(pwd)/Skills/plan-before-implementation" "$HOME/.copilot/skills/plan-bef
 
 ## docs-README の使い方
 
-```sh
-ln -s "$(pwd)/docs-README.md" "<your_repository>/docs/README.md"
-```
+`./install.sh` は `docs-README.md` をインストール先の `docs/README.md` へ配置します。既に `docs/README.md` がある場合は既存内容を保持してテンプレートを末尾へマージします。既にマージ済みなら変更しません。
+
+## Codex サブエージェントの使い方
+
+`./install.sh` は `agents/*-worker.toml` を `$HOME/.codex/agents/` へコピーします。同名の既存パスは内容や種類にかかわらず変更しません。プロジェクト側の事前検査が失敗した場合、エージェント設定ファイルを配置しません。
+
+`--dry-run` では未配置のエージェント設定ファイルも表示しますが、`$HOME/.codex` は変更しません。
 
 ## ハーネス
 
@@ -56,9 +60,9 @@ ln -s "$(pwd)/docs-README.md" "<your_repository>/docs/README.md"
 ./install.sh --dry-run
 ```
 
-インストール先プロジェクトのパスを入力し、環境を `rust`、`pico-sdk`、`esp-idf` から番号で1つ選択します。質問はこの2項目だけです。選択した `harness/<environment>/` の隠しファイルとサブディレクトリを含む全内容が、インストール先の直下へ配置されます。
+インストール先プロジェクトのパスを入力し、環境を `rust`、`pico-sdk`、`esp-idf` から番号で1つ選択します。質問はこの2項目だけです。選択した `harness/<environment>/` の隠しファイルとサブディレクトリを含む全内容に加え、`docs-README.md` が `docs/README.md` として配置されます。
 
-同一内容の既存ファイルは変更されません。`.gitignore`、フック JSON、VS Code 設定、`Cargo.toml`、`Makefile` は既存設定を保持して不足項目だけをマージします。同じ設定の値が異なる場合、未対応ファイルの内容が異なる場合、または型の異なる同名パスがある場合は、配置を開始せずエラー終了します。実行には Bash、Python 3、標準的な Unix コマンドが必要です。
+同一内容の既存ファイルは変更されません。`.gitignore`、フック JSON、VS Code 設定、`Cargo.toml`、`Makefile` は既存設定を保持して不足項目だけをマージします。`docs/README.md` は既存内容を保持して文書テンプレートを末尾へマージし、マージ済みなら変更しません。同じ設定の値が異なる場合、未対応ファイルの内容が異なる場合、文書テンプレートの境界マーカーが不正な場合、または型の異なる同名パスがある場合は、配置を開始せずエラー終了します。実行には Bash、Python 3、標準的な Unix コマンドが必要です。
 
 `--dry-run` を指定すると、通常実行と同じ競合検査を行い、新規配置またはマージする予定のファイルと件数を表示します。インストール先は変更しません。
 

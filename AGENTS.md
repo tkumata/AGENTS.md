@@ -1,4 +1,4 @@
-# Global Agent Instructions
+# Global Agents Instructions
 
 In Code Mode, within each bounded stage, run independent, functions.exec-available tool calls concurrently in one functions.exec call. Use await Promise.allSettled([...]) when partial results are useful, and inspect every result; use await Promise.all([...]) only when any failure should abort the batch. Keep dependencies, waits/resumes, approvals, conflicting or interdependent mutations, and adaptive investigations where each result may change the next step sequential. Do not split otherwise batchable inspections across outer tool calls.
 
@@ -22,6 +22,19 @@ In Code Mode, within each bounded stage, run independent, functions.exec-availab
 * 関係のないコード、文書、コメント、設定、フォーマットを変更しないこと。
 * 外部動作、公開 API、データ形式、永続化形式は、明示的な要求なしに変更しないこと。
 * 要求範囲外の問題は勝手に修正せず報告すること。
+
+## Working principles
+
+* 説明時は `Visualize` スキルを使用すること。
+* 簡潔・直接的・率直に回答し、根拠の弱い前提は疑い、確認済みの事実と不確実な情報を区別すること。
+* 調査は信頼できる最新の一次情報・公式情報を優先し、重要な根拠を提示すること。
+* 観測可能な挙動をテストし、大きな変更はレビューし、可能な場合は実際のユーザーインターフェースで検証すること。
+* 無関係な既存作業を保持し、許可されていない破壊的操作、本番操作、外部操作を行わないこと。
+* 元の目的と制約を維持し、許可された作業は最後まで完遂すること。完了を報告する前に実際の結果を検証すること。
+* 質問は、重要な曖昧さ、リスク、または承認が必要な場合に限ること。
+* 関連するスキルを使用し、サブエージェントは独立して実行できる作業にのみ使用し、結果を統合すること。
+* 変更は必要最小限かつ単純に保ち、無関係な編集、不要な抽象化、価値の低いテストを避けること。
+* 意味のあるブロッカー、結果、根拠のみ報告し、不要な進捗報告は避けること。
 
 ## Workflow and approval
 
@@ -61,7 +74,7 @@ docs/
 * 完了後は現在文書を同期し、実行計画を `completed/` へ移動する。
 * ADRは重要な設計判断ごとに新規作成し、既存の判断内容を上書きしない。
 * 空文書や説明の重複を作らず、意味が変わる文書だけを更新する。
-* 詳細な文書規約は `docs/README.md` に記載する。
+* 詳細な文書規約は `プロジェクトディレクトリ/docs/README.md` に記載する。
 
 空文書や説明の重複を作らず、実装によって意味が変わる文書だけを同期すること。複数フェーズは独立して検証可能にし、別セッションが `Phase N` の指示で再開できる情報を残すこと。
 
@@ -87,3 +100,8 @@ docs/
 * ソースコード、テスト、設定、依存関係を変更する前に `plan-before-implementation` を使用すること。
 * 承認後の実装に `clean-code-change` を使用すること。
 * 重複する場合も、このファイルの承認ゲートと安全規則を最低条件とすること。
+
+## Delegation
+
+* 計画立案、ドキュメント作成は、`sol-worker` に移譲する。
+* 実装タスクは、`luna-worker` に移譲する。

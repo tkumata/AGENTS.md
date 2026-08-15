@@ -11,7 +11,7 @@
 
 最終的に brain dump を AI に渡すだけで、ドキュメンテーション・実装・検証まで完了することを目指してます。現状は、ドキュメンテーションまで完了し人間の確認・承認を待つようにしています。
 
-## AGENTS.md の使い方
+## AGENTS.md の導入方法
 
 ```shell
 # setup for Codex (CLI and App)
@@ -24,7 +24,7 @@ ln -s "$(pwd)/AGENTS.md" "$HOME/.claude/CLAUDE.md"
 ln -s "$(pwd)/AGENTS.md" "$HOME/.copilot/copilot-instruction.md"
 ```
 
-## SKILL の使い方
+## SKILL の導入方法
 
 ```sh
 # setup for Codex (CLI and App)
@@ -40,17 +40,17 @@ ln -s "$(pwd)/Skills/clean-code-change" "$HOME/.copilot/skills/clean-code-change
 ln -s "$(pwd)/Skills/plan-before-implementation" "$HOME/.copilot/skills/plan-before-implementation"
 ```
 
-## docs-README の使い方
+## docs-README の導入方法
 
 `./install.sh` は `docs-README.md` をインストール先の `docs/README.md` へ配置します。既に `docs/README.md` がある場合は既存内容を保持してテンプレートを末尾へマージします。既にマージ済みなら変更しません。
 
-## Codex サブエージェントの使い方
+## Codex サブエージェントの導入方法
 
-`./install.sh` は `agents/*-worker.toml` を `$HOME/.codex/agents/` へコピーします。同名の既存パスは内容や種類にかかわらず変更しません。プロジェクト側の事前検査が失敗した場合、エージェント設定ファイルを配置しません。
+`./install.sh` は `agents/*.toml` を `$HOME/.codex/agents/` へコピーします。同名の既存パスは内容や種類にかかわらず変更しません。プロジェクト側の事前検査が失敗した場合、エージェント設定ファイルを配置しません。
 
 `--dry-run` では未配置のエージェント設定ファイルも表示しますが、`$HOME/.codex` は変更しません。
 
-## ハーネス
+## ハーネスの導入方法
 
 リポジトリ直下で対話式インストーラを実行します。
 

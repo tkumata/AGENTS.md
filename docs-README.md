@@ -20,8 +20,11 @@ docs/
 │   └── PRD.md
 ├── plans/
 │   ├── active/
+│   │   └── 2026-08-15-short-name.md
 │   └── completed/
+│       └── 2026-07-10-short-name.md
 └── adr/
+    ├── 001-short-name.md
     └── README.md
 ```
 
@@ -63,9 +66,7 @@ docs/plans/active/YYYY-MM-DD-short-name.md
 * Decisions
 * Outcome
 
-各フェーズは独立して検証可能にすること。
-
-別セッションで再開できるように、`Progress` に以下を残すこと。
+各フェーズは独立して検証可能にすること。別セッションで再開できるように、`Progress` に以下を残すこと。
 
 * 完了したフェーズ
 * 次に実行するフェーズ
@@ -80,9 +81,7 @@ docs/plans/active/YYYY-MM-DD-short-name.md
 docs/plans/completed/
 ```
 
-完了済み実行計画は作業履歴として扱い、現在仕様の正本として使用しないこと。
-
-単一ファイル内の明白な小変更など、継続用の作業記録が不要な場合は、実行計画を作成しなくてよい。
+完了済み実行計画は作業履歴として扱い、現在仕様の正本として使用しないこと。単一ファイル内の明白な小変更など、継続用の作業記録が不要な場合は、実行計画を作成しなくてよい。
 
 ## Architecture Decision Records (ADR)
 
@@ -106,11 +105,7 @@ ADR には以下を記載すること。
 * Supersedes
 * Superseded by
 
-既存 ADR の判断内容を上書きしないこと。
-
-決定を変更する場合は新しい ADR を作成し、以前の ADR を `Superseded` に変更して相互参照を追加すること。
-
-`docs/adr/README.md` に、ADR 番号、題名、状態、日付の索引を維持すること。
+既存 ADR の判断内容を上書きしないこと。決定を変更する場合は新しい ADR を作成し、以前の ADR を `Superseded` に変更して相互参照を追加すること。`docs/adr/README.md` に、ADR 番号、題名、状態、日付の索引を維持すること。
 
 ## Synchronization rules
 

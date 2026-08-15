@@ -48,35 +48,7 @@ In Code Mode, within each bounded stage, run independent, functions.exec-availab
 
 ## Documentation
 
-既存の文書構成を優先する。構成がなければ次を使用する。
-
-```text
-docs/
-├── current/                    # 現在有効な要求・仕様・設計
-│   ├── DESIGN.md
-│   ├── REQUIREMENTS.md
-│   ├── PRD.md
-│   └── SPECIFICATIONS.md
-├── plans/
-│   ├── active/                 # 進行中の実行計画
-│   │   ├─ plan-2026-08-05.md
-│   │   └─ plan-2026-08-06.md
-│   └── completed/              # 完了した実行計画
-│       ├─ plan-2026-07-30.md
-│       └─ plan-2026-07-31.md
-└── adr/                        # 1判断1ファイルの ADR
-    ├─ 001-use-graphql.md
-    └─ 002-use-rest-api.md
-```
-
-* 複数フェーズまたは別セッションへ継続する変更では、案件ごとに `docs/plans/active/YYYY-MM-DD-name.md` を作成する。
-* 実行計画には目的、範囲、方針、フェーズ、成功条件、検証、進捗、再開地点を残す。
-* 完了後は現在文書を同期し、実行計画を `completed/` へ移動する。
-* ADRは重要な設計判断ごとに新規作成し、既存の判断内容を上書きしない。
-* 空文書や説明の重複を作らず、意味が変わる文書だけを更新する。
-* 詳細な文書規約は `プロジェクトディレクトリ/docs/README.md` に記載する。
-
-空文書や説明の重複を作らず、実装によって意味が変わる文書だけを同期すること。複数フェーズは独立して検証可能にし、別セッションが `Phase N` の指示で再開できる情報を残すこと。
+`プロジェクトディレクトリ/docs/README.md` に従うこと。
 
 ## Quality and validation
 
@@ -103,5 +75,6 @@ docs/
 
 ## Delegation
 
-* 計画立案、ドキュメント作成は、`sol-worker` に移譲する。
-* 実装タスクは、`luna-worker` に移譲する。
+* ドキュメント作成、検証などのタスクは、`plan` エージェントに移譲する。
+* 調査タスクは、`investigate` エージェントに移譲する。
+* 実装タスクは、`implement` エージェントに移譲する。

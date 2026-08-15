@@ -130,7 +130,7 @@ template_relative_path() {
 }
 
 agent_files() {
-  find "$agents_source_dir" -maxdepth 1 -type f -name '*-worker.toml' -print0
+  find "$agents_source_dir" -maxdepth 1 -type f -name '*.toml' -print0
 }
 
 staging_dir=$(mktemp -d "${TMPDIR:-/tmp}/harness-installer.XXXXXX") || exit 1
@@ -211,8 +211,8 @@ if [ "$dry_run" -eq 1 ]; then
     fi
   done < <(agent_files)
 
-  printf 'dry-runエージェント: %s\n' "$agent_count"
-  printf 'dry-run完了: %s -> %s (新規: %s, マージ: %s)\n' \
+  printf 'dry-run エージェント: %s\n' "$agent_count"
+  printf 'dry-run 完了: %s -> %s (新規: %s, マージ: %s)\n' \
     "$environment" "$target_dir" "$copied_count" "$merged_count"
   exit 0
 fi

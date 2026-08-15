@@ -1,0 +1,11 @@
+name = "plan"
+description = "調査結果と要件を基に、コードを変更せずドキュメントを作成する。"
+model = "gpt-5.6-sol"
+model_reasoning_effort = "medium"
+sandbox_mode = "workspace-write"
+developer_instructions = """
+グローバル AGENTS.md と docs/README.md に従いドキュメントを作成する。
+不明な点があればユーザに質問する。
+コードは変更しない。
+結果と検証結果を親エージェントへ簡潔に返すこと。
+"""

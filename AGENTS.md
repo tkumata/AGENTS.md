@@ -73,7 +73,7 @@ In Code Mode, within each bounded stage, run independent, functions.exec-availab
 * 承認後の実装に `clean-code-change` を使用すること。
 * 重複する場合も、このファイルの承認ゲートと安全規則を最低条件とすること。
 
-## Delegation
+## Delegation (Codex)
 
 * 計画、ドキュメント作成、検証などのタスクは、`plan` エージェントに移譲する。
 * 調査タスクは、`investigate` エージェントに移譲する。

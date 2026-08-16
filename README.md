@@ -28,16 +28,16 @@ ln -s "$(pwd)/AGENTS.md" "$HOME/.copilot/copilot-instruction.md"
 
 ```sh
 # setup for Codex (CLI and App)
-ln -s "$(pwd)/Skills/clean-code-change" "$HOME/.codex/skills/clean-code-change"
-ln -s "$(pwd)/Skills/plan-before-implementation" "$HOME/.codex/skills/plan-before-implementation"
+ln -s "$(pwd)/skills/clean-code-change" "$HOME/.codex/skills/clean-code-change"
+ln -s "$(pwd)/skills/plan-before-implementation" "$HOME/.codex/skills/plan-before-implementation"
 
 # setup for Claude Code
-ln -s "$(pwd)/Skills/clean-code-change" "$HOME/.claude/skills/clean-code-change"
-ln -s "$(pwd)/Skills/plan-before-implementation" "$HOME/.claude/skills/plan-before-implementation"
+ln -s "$(pwd)/skills/clean-code-change" "$HOME/.claude/skills/clean-code-change"
+ln -s "$(pwd)/skills/plan-before-implementation" "$HOME/.claude/skills/plan-before-implementation"
 
 # setup for Copilot CLI
-ln -s "$(pwd)/Skills/clean-code-change" "$HOME/.copilot/skills/clean-code-change"
-ln -s "$(pwd)/Skills/plan-before-implementation" "$HOME/.copilot/skills/plan-before-implementation"
+ln -s "$(pwd)/skills/clean-code-change" "$HOME/.copilot/skills/clean-code-change"
+ln -s "$(pwd)/skills/plan-before-implementation" "$HOME/.copilot/skills/plan-before-implementation"
 ```
 
 ## Codex サブエージェントの導入方法

@@ -4,7 +4,6 @@ set -u
 
 installer_dir=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd -P) || exit 1
 merge_helper="$installer_dir/merge.py"
-docs_template="$installer_dir/docs-README.md"
 agents_source_dir="$installer_dir/agents"
 codex_dir="$HOME/.codex"
 codex_agents_dir="$codex_dir/agents"
@@ -50,10 +49,6 @@ if ! command -v python3 >/dev/null 2>&1; then
 fi
 if [ ! -f "$merge_helper" ]; then
   printf 'エラー: マージスクリプトが見つかりません: %s\n' "$merge_helper" >&2
-  exit 1
-fi
-if [ ! -f "$docs_template" ]; then
-  printf 'エラー: 文書テンプレートが見つかりません: %s\n' "$docs_template" >&2
   exit 1
 fi
 if [ ! -d "$agents_source_dir" ]; then
@@ -113,20 +108,14 @@ fi
 
 template_paths() {
   find "$source_dir" -mindepth 1 -print0
-  printf '%s\0' "$docs_template"
 }
 
 template_files() {
   find "$source_dir" -mindepth 1 -type f -print0
-  printf '%s\0' "$docs_template"
 }
 
 template_relative_path() {
-  if [ "$1" = "$docs_template" ]; then
-    printf 'docs/README.md'
-  else
-    printf '%s' "${1#"$source_dir"/}"
-  fi
+  printf '%s' "${1#"$source_dir"/}"
 }
 
 agent_files() {
@@ -137,13 +126,6 @@ staging_dir=$(mktemp -d "${TMPDIR:-/tmp}/harness-installer.XXXXXX") || exit 1
 trap 'rm -rf "$staging_dir"' EXIT HUP INT TERM
 
 conflict_found=0
-docs_destination_dir="$target_dir/docs"
-if { [ -e "$docs_destination_dir" ] || [ -L "$docs_destination_dir" ]; } && \
-  { [ ! -d "$docs_destination_dir" ] || [ -L "$docs_destination_dir" ]; }; then
-  printf 'エラー: 配置先と衝突しています: docs\n' >&2
-  conflict_found=1
-fi
-
 while IFS= read -r -d '' source_path; do
   relative_path=$(template_relative_path "$source_path")
   destination_path="$target_dir/$relative_path"
@@ -228,13 +210,6 @@ while IFS= read -r -d '' source_path; do
   fi
 done < <(find "$source_dir" -mindepth 1 -type d -print0)
 
-if [ ! -d "$docs_destination_dir" ]; then
-  if ! mkdir -- "$docs_destination_dir"; then
-    printf 'エラー: ディレクトリを作成できません: docs\n' >&2
-    exit 1
-  fi
-fi
-
 copied_count=0
 merged_count=0
 while IFS= read -r -d '' source_path; do
@@ -269,7 +244,7 @@ while IFS= read -r -d '' source_path; do
       printf 'エラー: エージェント配置先を作成できません: %s\n' "$codex_agents_dir" >&2
       exit 1
     fi
-    if ! cp -p -- "$source_path" "$destination_path"; then
+    if ! ln -s "$source_path" "$destination_path"; then
       printf 'エラー: エージェント設定を配置できません: %s\n' "$agent_name" >&2
       exit 1
     fi

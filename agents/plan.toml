@@ -4,8 +4,6 @@ model = "gpt-5.6-sol"
 model_reasoning_effort = "medium"
 sandbox_mode = "workspace-write"
 developer_instructions = """
-グローバル AGENTS.md と docs/README.md に従いドキュメントを作成する。
-不明な点があればユーザに質問する。
-コードは変更しない。
+plan-before-implementation スキルを使用して、調査結果と要件を基にドキュメントを作成する。コードは変更しない。
 結果と検証結果を親エージェントへ簡潔に返すこと。
 """

@@ -48,7 +48,7 @@ In Code Mode, within each bounded stage, run independent, functions.exec-availab
 
 ## Documentation
 
-`プロジェクトディレクトリ/docs/README.md` に従うこと。
+`plan-before-implementation` スキルの `Documents` セクションに従うこと。
 
 ## Quality and validation
 
@@ -75,6 +75,6 @@ In Code Mode, within each bounded stage, run independent, functions.exec-availab
 
 ## Delegation
 
-* ドキュメント作成、検証などのタスクは、`plan` エージェントに移譲する。
+* 計画、ドキュメント作成、検証などのタスクは、`plan` エージェントに移譲する。
 * 調査タスクは、`investigate` エージェントに移譲する。
 * 実装タスクは、`implement` エージェントに移譲する。

@@ -52,23 +52,21 @@ assert_templates_match() {
     fi
   done < <(find "$source_dir" -mindepth 1 -print0)
 
-  if [ ! -f "$target/docs/README.md" ]; then
-    fail "$environment: missing docs/README.md"
-  elif ! cmp -s -- "$repository_dir/docs-README.md" "$target/docs/README.md"; then
-    fail "$environment: content differs for docs/README.md"
-  fi
+  [ ! -e "$target/docs/README.md" ] || fail "$environment: installer created docs/README.md"
 }
 
 assert_agents_match() {
   while IFS= read -r -d '' source_path; do
     agent_name=${source_path##*/}
     destination_path="$installer_home/.codex/agents/$agent_name"
-    if [ ! -f "$destination_path" ]; then
+    if [ ! -L "$destination_path" ]; then
       fail "missing agent $agent_name"
+    elif [ "$(readlink "$destination_path")" != "$source_path" ]; then
+      fail "agent $agent_name does not point to its source"
     elif ! cmp -s -- "$source_path" "$destination_path"; then
       fail "content differs for agent $agent_name"
     fi
-  done < <(find "$repository_dir/agents" -maxdepth 1 -type f -name '*-worker.toml' -print0)
+  done < <(find "$repository_dir/agents" -maxdepth 1 -type f -name '*.toml' -print0)
 }
 
 for environment_and_selection in 'rust 1' 'pico-sdk 2' 'esp-idf 3'; do
@@ -85,7 +83,9 @@ for environment_and_selection in 'rust 1' 'pico-sdk 2' 'esp-idf 3'; do
   assert_templates_match "$environment" "$target"
   if [ "$environment" = rust ]; then
     assert_agents_match
-    printf 'existing agent content\n' >"$installer_home/.codex/agents/sol-worker.toml"
+    agent_conflict_path="$installer_home/.codex/agents/implement.toml"
+    rm "$agent_conflict_path"
+    printf 'existing agent content\n' >"$agent_conflict_path"
   fi
 
   before="$temporary_root/before-$environment"
@@ -109,8 +109,8 @@ dry_run_install_output="$temporary_root/dry-run-install-output"
 installer_home="$temporary_root/dry-run-home"
 mkdir "$installer_home"
 mkdir "$dry_run_target"
-rust_file_count=$(( $(find "$repository_dir/harness/rust" -type f | wc -l | tr -d ' ') + 1 ))
-agent_file_count=$(find "$repository_dir/agents" -maxdepth 1 -type f -name '*-worker.toml' | wc -l | tr -d ' ')
+rust_file_count=$(find "$repository_dir/harness/rust" -type f | wc -l | tr -d ' ')
+agent_file_count=$(find "$repository_dir/agents" -maxdepth 1 -type f -name '*.toml' | wc -l | tr -d ' ')
 dry_run_home_before="$temporary_root/dry-run-home-before"
 dry_run_home_after="$temporary_root/dry-run-home-after"
 snapshot_tree "$installer_home" "$dry_run_home_before"
@@ -120,8 +120,11 @@ else
   [ -z "$(find "$dry_run_target" -mindepth 1 -print -quit)" ] || fail 'dry-run changed an empty target'
   [ ! -e "$installer_home/.codex" ] || fail 'dry-run changed the agent destination'
   grep -Fq '予定: 新規: Cargo.toml' "$dry_run_output" || fail 'dry-run omitted a planned new file'
-  grep -Fq "予定: 新規: $installer_home/.codex/agents/luna-worker.toml" "$dry_run_output" || fail 'dry-run omitted a planned agent'
-  grep -Fq "dry-runエージェント: $agent_file_count" "$dry_run_output" || fail 'dry-run reported incorrect agent count'
+  while IFS= read -r -d '' source_path; do
+    agent_name=${source_path##*/}
+    grep -Fq "予定: 新規: $installer_home/.codex/agents/$agent_name" "$dry_run_output" || fail "dry-run omitted agent $agent_name"
+  done < <(find "$repository_dir/agents" -maxdepth 1 -type f -name '*.toml' -print0)
+  grep -Fq "dry-run エージェント: $agent_file_count" "$dry_run_output" || fail 'dry-run reported incorrect agent count'
   grep -Fq "(新規: $rust_file_count, マージ: 0)" "$dry_run_output" || fail 'dry-run reported incorrect new-file counts'
 fi
 snapshot_tree "$installer_home" "$dry_run_home_after"
@@ -144,7 +147,7 @@ snapshot_tree "$dry_run_target" "$dry_run_after"
 cmp -s "$dry_run_before" "$dry_run_after" || fail 'no-change dry-run modified the target'
 snapshot_tree "$installer_home" "$dry_run_home_after"
 cmp -s "$dry_run_home_before" "$dry_run_home_after" || fail 'no-change dry-run modified the agent home'
-grep -Fq 'dry-runエージェント: 0' "$dry_run_output" || fail 'no-change dry-run reported agent changes'
+grep -Fq 'dry-run エージェント: 0' "$dry_run_output" || fail 'no-change dry-run reported agent changes'
 grep -Fq '(新規: 0, マージ: 0)' "$dry_run_output" || fail 'no-change dry-run reported changes'
 
 permission_target="$temporary_root/permission-target"
@@ -213,6 +216,7 @@ printf '%s\n' \
   'custom:' \
   '	@echo custom' >"$merge_target/Makefile"
 printf '# Existing documentation\n' >"$merge_target/docs/README.md"
+cp "$merge_target/docs/README.md" "$temporary_root/merge-docs-before"
 
 merge_dry_run_before="$temporary_root/merge-dry-run-before"
 merge_dry_run_after="$temporary_root/merge-dry-run-after"
@@ -221,10 +225,13 @@ if ! run_installer "$merge_target" 1 "$temporary_root/merge-dry-run-output" --dr
   fail 'supported file merge dry-run failed'
 else
   grep -Fq '予定: マージ: .gitignore' "$temporary_root/merge-dry-run-output" || fail 'merge dry-run omitted a planned merge'
-  grep -Fq '予定: マージ: docs/README.md' "$temporary_root/merge-dry-run-output" || fail 'merge dry-run omitted docs/README.md'
+  if grep -Fq 'docs/README.md' "$temporary_root/merge-dry-run-output"; then
+    fail 'merge dry-run inspected docs/README.md'
+  fi
 fi
 snapshot_tree "$merge_target" "$merge_dry_run_after"
 cmp -s "$merge_dry_run_before" "$merge_dry_run_after" || fail 'merge dry-run modified the target'
+cmp -s "$temporary_root/merge-docs-before" "$merge_target/docs/README.md" || fail 'merge dry-run changed docs/README.md'
 [ ! -e "$merge_target/.agent-hooks" ] || fail 'merge dry-run created a directory'
 
 if ! run_installer "$merge_target" 1 "$temporary_root/merge-output"; then
@@ -242,9 +249,7 @@ else
   [ "$(stat -f '%Lp' "$merge_target/Cargo.toml")" = 640 ] || fail 'merged file permission was not preserved'
   grep -Fxq 'custom:' "$merge_target/Makefile" || fail 'existing Makefile target was lost'
   grep -Fxq 'check: fmt-check lint test' "$merge_target/Makefile" || fail 'Makefile target was not merged'
-  grep -Fxq '# Existing documentation' "$merge_target/docs/README.md" || fail 'existing documentation was lost'
-  grep -Fq '<!-- BEGIN AGENTS.md docs template -->' "$merge_target/docs/README.md" || fail 'documentation marker was not added'
-  grep -Fq '# Documentation' "$merge_target/docs/README.md" || fail 'documentation template was not merged'
+  cmp -s "$temporary_root/merge-docs-before" "$merge_target/docs/README.md" || fail 'existing documentation was changed'
 
   merge_before="$temporary_root/merge-before"
   merge_after="$temporary_root/merge-after"
@@ -259,30 +264,19 @@ fi
 broken_docs_target="$temporary_root/broken-docs-target"
 mkdir -p "$broken_docs_target/docs"
 printf '<!-- BEGIN AGENTS.md docs template -->\n' >"$broken_docs_target/docs/README.md"
-if run_installer "$broken_docs_target" 1 "$temporary_root/broken-docs-output"; then
-  fail 'installation with a broken documentation marker succeeded'
+cp "$broken_docs_target/docs/README.md" "$temporary_root/broken-docs-before"
+if ! run_installer "$broken_docs_target" 1 "$temporary_root/broken-docs-output"; then
+  fail 'installation inspected a broken documentation marker'
 fi
-[ ! -e "$broken_docs_target/Cargo.toml" ] || fail 'broken documentation marker allowed a partial installation'
-
-merged_docs_target="$temporary_root/merged-docs-target"
-mkdir -p "$merged_docs_target/docs"
-{
-  printf '# Existing documentation\n\n'
-  cat "$repository_dir/docs-README.md"
-} >"$merged_docs_target/docs/README.md"
-cp "$merged_docs_target/docs/README.md" "$temporary_root/merged-docs-before"
-if ! run_installer "$merged_docs_target" 1 "$temporary_root/merged-docs-output"; then
-  fail 'installation with already merged documentation failed'
-fi
-cmp -s "$temporary_root/merged-docs-before" "$merged_docs_target/docs/README.md" || fail 'already merged documentation changed'
+cmp -s "$temporary_root/broken-docs-before" "$broken_docs_target/docs/README.md" || fail 'broken documentation marker was changed'
 
 docs_type_conflict_target="$temporary_root/docs-type-conflict-target"
 mkdir "$docs_type_conflict_target"
 printf 'existing\n' >"$docs_type_conflict_target/docs"
-if run_installer "$docs_type_conflict_target" 1 "$temporary_root/docs-type-conflict-output"; then
-  fail 'installation with a docs type conflict succeeded'
+if ! run_installer "$docs_type_conflict_target" 1 "$temporary_root/docs-type-conflict-output"; then
+  fail 'installation inspected a docs type conflict'
 fi
-[ ! -e "$docs_type_conflict_target/Cargo.toml" ] || fail 'docs type conflict allowed a partial installation'
+[ "$(cat "$docs_type_conflict_target/docs")" = existing ] || fail 'docs type conflict changed the existing path'
 
 value_conflict_target="$temporary_root/value-conflict-target"
 mkdir -p "$value_conflict_target/.vscode"

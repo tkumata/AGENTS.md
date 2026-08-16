@@ -300,43 +300,6 @@ def merge_makefile(existing_text, template_text):
     return result + "\n\n".join(missing) + "\n"
 
 
-DOCS_BEGIN_MARKER = "<!-- BEGIN AGENTS.md docs template -->"
-DOCS_END_MARKER = "<!-- END AGENTS.md docs template -->"
-
-
-def merge_docs_readme(existing_text, template_text):
-    begin_count = existing_text.count(DOCS_BEGIN_MARKER)
-    end_count = existing_text.count(DOCS_END_MARKER)
-    if begin_count or end_count:
-        if (
-            begin_count == 1
-            and end_count == 1
-            and existing_text.find(DOCS_BEGIN_MARKER)
-            < existing_text.find(DOCS_END_MARKER)
-        ):
-            return existing_text
-        raise MergeConflict("文書テンプレートの境界マーカーが不正です")
-    if template_text in existing_text:
-        return existing_text
-
-    result = existing_text
-    if result and not result.endswith("\n"):
-        result += "\n"
-    if result and not result.endswith("\n\n"):
-        result += "\n"
-    template_block = template_text
-    if template_block and not template_block.endswith("\n"):
-        template_block += "\n"
-    return (
-        result
-        + DOCS_BEGIN_MARKER
-        + "\n"
-        + template_block
-        + DOCS_END_MARKER
-        + "\n"
-    )
-
-
 def merge(relative_path, existing, template):
     if Path(relative_path).name == ".gitignore":
         return merge_gitignore(existing, template)
@@ -350,8 +313,6 @@ def merge(relative_path, existing, template):
         return merge_cargo_toml(existing, template)
     if relative_path == "Makefile":
         return merge_makefile(existing, template)
-    if relative_path == "docs/README.md":
-        return merge_docs_readme(existing, template)
     raise MergeConflict("自動マージに対応していません")
 
 

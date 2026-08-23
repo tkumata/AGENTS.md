@@ -1,6 +1,6 @@
 # AGENTS.md
 
-生成 AI の性能が驚くような速度で進歩している状況でも、「開発」は「何を解決するのか」「誰に届けるのか」「開発者の入れ替えで進捗速度が左右されない」など原始的かつ根本的な部分は変わらないと考えてます。そこで、AI 時代でも開発に必要な以下の事柄を雛形として運用できるのではないかと考えました。
+生成 AI の性能が驚くような速度で進歩している状況でも、「開発」は「何を解決するのか」「誰に届けるのか」「開発者の入れ替えで進捗速度が左右されない」など原始的かつ根本的な部分は変わらないと思っています。そこで、AI 時代でも開発に必要な以下の事柄を雛形として運用することで効率的に開発できるのではないかと考えました。
 
 - ドキュメントの管理・運用
 - ソースコードの品質 (可読性や保守性)
@@ -13,7 +13,7 @@
 
 ## AGENTS.md の導入方法
 
-```shell
+```Shell
 # setup for Codex (CLI and App)
 ln -s "$(pwd)/AGENTS.md" "$HOME/.codex/AGENTS.md"
 
@@ -22,22 +22,6 @@ ln -s "$(pwd)/AGENTS.md" "$HOME/.claude/CLAUDE.md"
 
 # setup for Copilot CLI
 ln -s "$(pwd)/AGENTS.md" "$HOME/.copilot/copilot-instruction.md"
-```
-
-## SKILL の導入方法
-
-```sh
-# setup for Codex (CLI and App)
-ln -s "$(pwd)/skills/clean-code-change" "$HOME/.codex/skills/clean-code-change"
-ln -s "$(pwd)/skills/plan-before-implementation" "$HOME/.codex/skills/plan-before-implementation"
-
-# setup for Claude Code
-ln -s "$(pwd)/skills/clean-code-change" "$HOME/.claude/skills/clean-code-change"
-ln -s "$(pwd)/skills/plan-before-implementation" "$HOME/.claude/skills/plan-before-implementation"
-
-# setup for Copilot CLI
-ln -s "$(pwd)/skills/clean-code-change" "$HOME/.copilot/skills/clean-code-change"
-ln -s "$(pwd)/skills/plan-before-implementation" "$HOME/.copilot/skills/plan-before-implementation"
 ```
 
 ## Codex サブエージェントの導入方法
@@ -50,7 +34,7 @@ ln -s "$(pwd)/skills/plan-before-implementation" "$HOME/.copilot/skills/plan-bef
 
 リポジトリ直下で対話式インストーラを実行します。
 
-```sh
+```Shell
 ./install.sh
 # 変更予定だけを確認する場合
 ./install.sh --dry-run
@@ -100,3 +84,10 @@ Rust 関連ファイルに変更がある場合、`Stop hook` は fingerprint �
 ```
 
 このようにすると PR 作成時の説明欄に PR レビューは日本語で行う意図が入ります。PR の説明欄にこのような文があると GitHub Copilot は指示と認識して日本語で PR レビューするようになります。これなら GitHub の設定で PR レビューを自動的に発火させても安心です。
+
+## おまけ: SKILLS
+
+実験的に下記 SKILL を作ってます。
+
+- dev-spec: brainstorming や brain dump から ADR、PRD、要件定義書、仕様書、設計書を作成します。
+- japanese-writing: AI 生成の日本語を自然な感じします。

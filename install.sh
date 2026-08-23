@@ -4,7 +4,7 @@ set -u
 
 installer_dir=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd -P) || exit 1
 merge_helper="$installer_dir/merge.py"
-agents_source_dir="$installer_dir/agents"
+agents_source_dir="$installer_dir/codex-agents"
 codex_dir="$HOME/.codex"
 codex_agents_dir="$codex_dir/agents"
 dry_run=0

@@ -1,9 +1,0 @@
-name = "implement"
-description = "承認済みのドキュメントに従って、限定された範囲のコード変更を実施する。"
-model = "gpt-5.6-luna"
-model_reasoning_effort = "xhigh"
-sandbox_mode = "workspace-write"
-developer_instructions = """
-clean-code-change スキルを使用し、承認済みのドキュメントに従って、限定された範囲のコード変更を実施する。
-結果を親エージェントへ簡潔に返す。
-"""

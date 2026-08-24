@@ -149,7 +149,7 @@ if [ "$dry_run" -eq 1 ]; then
     fi
   done < <(find "$source_dir" -mindepth 1 -type f -print0)
 
-  printf 'dry-run完了: %s -> %s (新規: %s, マージ: %s)\n' \
+  printf 'dry-run 完了: %s -> %s (新規: %s, マージ: %s)\n' \
     "$environment" "$target_dir" "$copied_count" "$merged_count"
   exit 0
 fi

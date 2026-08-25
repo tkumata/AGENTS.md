@@ -37,11 +37,11 @@ ln -s "$(pwd)/AGENTS.md" "$HOME/.copilot/copilot-instructions.md"
 
 インストール先プロジェクトのパス、環境（`rust`、`pico-sdk`、`esp-idf`）、エージェント（Codex、Claude Code、Copilot CLI）を番号で1つずつ選択します。選択した環境の共通ハーネスと、選択したエージェント用の設定だけが配置されます。
 
-| エージェント | docs 用指示        | hook 設定                    |
-| ------------ | ------------------ | ---------------------------- |
-| Codex        | `docs/AGENTS.md` | `.codex/hooks.json`        |
-| Claude Code  | `docs/CLAUDE.md` | `.claude/settings.json`    |
-| Copilot CLI  | `docs/AGENTS.md` | `.github/hooks/hooks.json` |
+| エージェント | docs 用指示 | hook 設定 |
+| ---------- | ---------- | -------- |
+| Codex | `docs/AGENTS.md` | `.codex/hooks.json` |
+| Claude Code | `docs/CLAUDE.md` | `.claude/settings.json` |
+| Copilot CLI | `docs/AGENTS.md` | `.github/hooks/hooks.json` |
 
 docs 用指示ファイルは、リポジトリ直下の `docs-AGENTS.md` への絶対 symlink です。`docs/` がなければ作成し、同じ symlink が既にあれば変更しません。選択外の設定は新規作成せず、既に存在しても変更しません。
 

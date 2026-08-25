@@ -80,13 +80,13 @@ docs/
 
 ## Delegation
 
-* ユーザの brain dump から仕様書、要件定義書、計画書、PRD、ADR を作成するために下記条件のサブエージェントを使用すること。
+* ユーザの brain dump を一回の bounded pass で整理・清書し、必要な文書だけを作成する場合は下記条件のサブエージェントを使用すること。文書化後に自動で再計画、継続調査、Finalization を行わないこと。
   * gpt-5.6-luna モデル
   * effort は xhigh
   * kmt-doc-rules スキルを使用すること
 * 承認後の実装に下記条件のサブエージェントを使用すること。
   * gpt-5.6-luna モデル
-  * effort は xhigh
+  * effort は high
   * kmt-code-rules スキルを使用すること
 * 不具合調査やソースコード調査は下記条件のサブエージェントを使用すること。
   * gpt-5.6-terra モデル

@@ -1,0 +1,16 @@
+{
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "AGENT_KIND=claude ./.agent-hooks/verify_pipeline.sh",
+            "timeout": 240,
+            "statusMessage": "Verifying ESP-IDF changes"
+          }
+        ]
+      }
+    ]
+  }
+}

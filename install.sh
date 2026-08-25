@@ -4,6 +4,7 @@ set -u
 
 installer_dir=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd -P) || exit 1
 merge_helper="$installer_dir/merge.py"
+docs_agents_source="$installer_dir/docs-AGENTS.md"
 dry_run=0
 help_requested=0
 
@@ -48,6 +49,10 @@ if [ ! -f "$merge_helper" ]; then
   printf 'エラー: マージスクリプトが見つかりません: %s\n' "$merge_helper" >&2
   exit 1
 fi
+if [ ! -f "$docs_agents_source" ]; then
+  printf 'エラー: docs-AGENTS.md が見つかりません: %s\n' "$docs_agents_source" >&2
+  exit 1
+fi
 
 printf 'インストール先プロジェクトのパス: '
 if ! IFS= read -r target_input || [ -z "$target_input" ]; then
@@ -81,6 +86,33 @@ case "$environment_selection" in
     ;;
 esac
 
+printf '%s\n' 'エージェントを選択してください:'
+printf '%s\n' '  1) Codex' '  2) Claude Code' '  3) Copilot CLI'
+printf '選択: '
+if ! IFS= read -r agent_selection; then
+  printf 'エラー: エージェントを選択してください。\n' >&2
+  exit 1
+fi
+
+case "$agent_selection" in
+  1)
+    agent_kind=codex
+    docs_instruction_name=AGENTS.md
+    ;;
+  2)
+    agent_kind=claude
+    docs_instruction_name=CLAUDE.md
+    ;;
+  3)
+    agent_kind=copilot
+    docs_instruction_name=AGENTS.md
+    ;;
+  *)
+    printf 'エラー: 無効なエージェント選択です: %s\n' "$agent_selection" >&2
+    exit 1
+    ;;
+esac
+
 source_dir="$installer_dir/harness/$environment"
 if [ ! -d "$source_dir" ]; then
   printf 'エラー: ハーネステンプレートが見つかりません: %s\n' \
@@ -88,12 +120,54 @@ if [ ! -d "$source_dir" ]; then
   exit 1
 fi
 
+docs_directory="$target_dir/docs"
+docs_agents_destination="$docs_directory/$docs_instruction_name"
+docs_relative_path="docs/$docs_instruction_name"
+docs_link_needed=1
+if [ -e "$docs_directory" ] || [ -L "$docs_directory" ]; then
+  if [ ! -d "$docs_directory" ] || [ -L "$docs_directory" ]; then
+    printf 'エラー: 配置先と衝突しています: docs\n' >&2
+    exit 1
+  fi
+fi
+if [ -L "$docs_agents_destination" ]; then
+  if [ "$(readlink "$docs_agents_destination")" = "$docs_agents_source" ]; then
+    docs_link_needed=0
+  else
+    printf 'エラー: 配置先と衝突しています: %s\n' "$docs_relative_path" >&2
+    exit 1
+  fi
+elif [ -e "$docs_agents_destination" ]; then
+  printf 'エラー: 配置先と衝突しています: %s\n' "$docs_relative_path" >&2
+  exit 1
+fi
+
+template_path_selected() {
+  case "$1" in
+    .codex|.codex/*)
+      [ "$agent_kind" = codex ]
+      ;;
+    .claude|.claude/*)
+      [ "$agent_kind" = claude ]
+      ;;
+    .github|.github/*)
+      [ "$agent_kind" = copilot ]
+      ;;
+    *)
+      return 0
+      ;;
+  esac
+}
+
 staging_dir=$(mktemp -d "${TMPDIR:-/tmp}/harness-installer.XXXXXX") || exit 1
 trap 'rm -rf "$staging_dir"' EXIT HUP INT TERM
 
 conflict_found=0
 while IFS= read -r -d '' source_path; do
   relative_path=${source_path#"$source_dir"/}
+  if ! template_path_selected "$relative_path"; then
+    continue
+  fi
   destination_path="$target_dir/$relative_path"
 
   if [ -L "$source_path" ]; then
@@ -136,8 +210,15 @@ fi
 if [ "$dry_run" -eq 1 ]; then
   copied_count=0
   merged_count=0
+  if [ "$docs_link_needed" -eq 1 ]; then
+    printf '予定: 新規: %s\n' "$docs_relative_path"
+    copied_count=$((copied_count + 1))
+  fi
   while IFS= read -r -d '' source_path; do
     relative_path=${source_path#"$source_dir"/}
+    if ! template_path_selected "$relative_path"; then
+      continue
+    fi
     destination_path="$target_dir/$relative_path"
     staged_path="$staging_dir/$relative_path"
     if [ ! -e "$destination_path" ]; then
@@ -156,6 +237,9 @@ fi
 
 while IFS= read -r -d '' source_path; do
   relative_path=${source_path#"$source_dir"/}
+  if ! template_path_selected "$relative_path"; then
+    continue
+  fi
   destination_path="$target_dir/$relative_path"
   if [ ! -d "$destination_path" ]; then
     if ! mkdir -- "$destination_path"; then
@@ -165,10 +249,27 @@ while IFS= read -r -d '' source_path; do
   fi
 done < <(find "$source_dir" -mindepth 1 -type d -print0)
 
+if [ "$docs_link_needed" -eq 1 ] && [ ! -d "$docs_directory" ]; then
+  if ! mkdir -- "$docs_directory"; then
+    printf 'エラー: ディレクトリを作成できません: docs\n' >&2
+    exit 1
+  fi
+fi
+
 copied_count=0
 merged_count=0
+if [ "$docs_link_needed" -eq 1 ]; then
+  if ! ln -s "$docs_agents_source" "$docs_agents_destination"; then
+    printf 'エラー: symlink を配置できません: %s\n' "$docs_relative_path" >&2
+    exit 1
+  fi
+  copied_count=$((copied_count + 1))
+fi
 while IFS= read -r -d '' source_path; do
   relative_path=${source_path#"$source_dir"/}
+  if ! template_path_selected "$relative_path"; then
+    continue
+  fi
   destination_path="$target_dir/$relative_path"
   staged_path="$staging_dir/$relative_path"
   if [ ! -e "$destination_path" ]; then

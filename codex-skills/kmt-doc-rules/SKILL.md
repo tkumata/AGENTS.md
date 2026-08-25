@@ -1,6 +1,6 @@
 ---
 name: kmt-doc-rules
-description: brainstorm、brain dump、開発要求を整理し、実装前の active plan と必要な ADR を作成し、実装完了後に docs/current/ を確定する。実装は行わない。
+description: brainstorm、brain dump、開発要求を整理し、実装前の active plan と必要なドキュメントを作成する。実装は行わない。
 ---
 # Kmt Doc Rules
 
@@ -157,6 +157,7 @@ ADR には必要に応じて以下を記載する。
 - Superseded by
 
 既存 ADR の Decision を上書きしない。判断を変更する場合は新しい ADR を作成する。
+
 既存 ADR は、参照関係や Status など履歴を壊さない情報だけを必要に応じて更新する。
 
 ## Workflow

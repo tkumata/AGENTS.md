@@ -1,0 +1,27 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "AGENT_KIND=claude ./.agent-hooks/pre_tool_guard.sh",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "AGENT_KIND=claude ./.agent-hooks/verify_pipeline.sh",
+            "timeout": 60
+          }
+        ]
+      }
+    ]
+  }
+}

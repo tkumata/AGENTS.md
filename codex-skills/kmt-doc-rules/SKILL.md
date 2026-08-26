@@ -5,6 +5,7 @@ description: brain dump を一回の文書化パスで整理・清書し、必�
 # Kmt Doc Rules
 
 ユーザの brain dump を、意図を保った実装可能な文書へ一度で整理・清書する。
+
 文書化後は承認待ちで停止し、実装後の再計画や Finalization はこのスキルで行わない。
 
 ## Rules
@@ -32,11 +33,12 @@ description: brain dump を一回の文書化パスで整理・清書し、必�
 - `docs/plans/active/YYYY-MM-DD-short-name.md`: 複数ファイル、複数フェーズ、別セッションでの継続、またはユーザが計画を求めた場合
 
 単一ファイルの明白な小変更や、計画を必要としない清書では active plan を作成しない。
-ADRの判断内容は上書きせず、判断を変更する場合は新しいADRを作成する。
+
+ADR の判断内容は上書きせず、判断を変更する場合は新しい ADR を作成する。
 
 ## One-pass Workflow
 
-1. brain dump から Goal / Scope / Non-goals / Requirements / Open Questions を抽出する。
+1. ユーザの brain dump から Goal / Scope / Non-goals / Requirements / Open Questions を抽出する。
 2. 変更に直接関係する既存文書とコードだけを確認する。
 3. 要求、仕様、設計、PRD、ADR、active plan のうち必要な成果物を選ぶ。
 4. 選んだ成果物を一度に作成または更新し、重複と矛盾を整理する。
@@ -77,7 +79,8 @@ active plan を作成する場合は、次の最小構成を使う。不要な�
 ## References
 ```
 
-各 Task は目的が1つで、主要な変更が1つであり、独立して検証可能でなければならない。
+各 Task は目的が 1 つで、主要な変更が 1 つであり、独立して検証可能でなければならない。
+
 Acceptance Criteria と Verification は観測可能な内容にする。
 
 ## Done

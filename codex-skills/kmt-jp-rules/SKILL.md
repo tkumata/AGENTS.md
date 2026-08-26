@@ -2,7 +2,7 @@
 name: kmt-jp-rules
 description: 自然で簡潔な日本語で記述する
 ---
-# Kmt JP Writing
+# Kmt JP Rules
 
 ドキュメントは自然で簡潔な日本語で記述すること。
 

@@ -83,7 +83,7 @@ docs/
   * モデルは gpt-5.6-sol
   * reasoning effort は medium
   * kmt-doc-rules スキルを使用すること
-* 承認後の実装に下記条件のサブエージェントを使用すること。
+* 承認後の実装に kmt_luna_implementer エージェントを使用すること、使用不能の場合は下記条件のサブエージェントを使用すること。
   * モデルは gpt-5.6-luna
   * reasoning effort は xhigh
 * 不具合調査やソースコード調査は下記条件のサブエージェントを使用すること。

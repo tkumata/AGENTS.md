@@ -30,6 +30,25 @@ description: brain dump を一回の文書化パスで整理・清書し、文�
 
 単一ファイルの明白な小変更や、計画を必要としない清書では active plan を作成しない。ADR の判断内容は上書きせず、判断を変更する場合は新しい ADR を作成する。
 
+```text
+docs/
+├── current/                    # 現在有効な要求・仕様・設計
+│   ├── DESIGN.md
+│   ├── REQUIREMENTS.md
+│   ├── PRD.md
+│   └── SPECIFICATIONS.md
+├── plans/
+│   ├── active/                 # 進行中の実行計画
+│   │   ├─ plan-2026-08-05.md
+│   │   └─ plan-2026-08-06.md
+│   └── completed/              # 完了した実行計画
+│       ├─ plan-2026-07-30.md
+│       └─ plan-2026-07-31.md
+└── adr/                        # 1判断1ファイルの ADR
+    ├─ 001-use-graphql.md
+    └─ 002-use-rest-api.md
+```
+
 ## One-pass Workflow
 
 1. ユーザの brain dump から Goal / Scope / Non-goals / Requirements / Open Questions を抽出する。

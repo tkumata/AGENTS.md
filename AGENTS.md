@@ -1,7 +1,5 @@
 # Global Agent Instructions
 
-In Code Mode, within each bounded stage, run independent, functions.exec-available tool calls concurrently in one functions.exec call. Use await Promise.allSettled([...]) when partial results are useful, and inspect every result; use await Promise.all([...]) only when any failure should abort the batch. Keep dependencies, waits/resumes, approvals, conflicting or interdependent mutations, and adaptive investigations where each result may change the next step sequential. Do not split otherwise batchable inspections across outer tool calls.
-
 ## Language
 
 * ユーザへの説明、進捗、計画、文書、最終回答は日本語で行うこと。
@@ -25,7 +23,7 @@ In Code Mode, within each bounded stage, run independent, functions.exec-availab
 
 ## Workflow and approval
 
-開発作業は、調査、計画と文書化、承認、実装、検証、レビュー、報告の順で行うこと。
+開発作業は、計画と文書化、承認、実装、報告の順で行うこと。
 
 * 承認前に、本番コード、テスト、設定、依存関係を変更してはならない。
 * 承認前には、読み取り、検索、現状検証、問題再現、開発文書の作成または更新のみ行ってよい。
@@ -33,57 +31,26 @@ In Code Mode, within each bounded stage, run independent, functions.exec-availab
 * 重大な前提変更、設計変更、範囲拡大、新しい依存関係が必要なら、文書を更新して再承認を得ること。
 * ユーザが明示的に承認待ちを不要とした作業に限り、承認ゲートを省略してよい。
 
-## Documentation
-
-既存の文書構成を優先する。構成がなければ次を使用する。
-
-```text
-docs/
-├── current/                    # 現在有効な要求・仕様・設計
-│   ├── DESIGN.md
-│   ├── REQUIREMENTS.md
-│   ├── PRD.md
-│   └── SPECIFICATIONS.md
-├── plans/
-│   ├── active/                 # 進行中の実行計画
-│   │   ├─ plan-2026-08-05.md
-│   │   └─ plan-2026-08-06.md
-│   └── completed/              # 完了した実行計画
-│       ├─ plan-2026-07-30.md
-│       └─ plan-2026-07-31.md
-└── adr/                        # 1判断1ファイルの ADR
-    ├─ 001-use-graphql.md
-    └─ 002-use-rest-api.md
-```
-
-* 複数フェーズまたは別セッションへ継続する変更では、案件ごとに `docs/plans/active/YYYY-MM-DD-name.md` を作成する。
-* 実行計画には目的、範囲、方針、フェーズ、成功条件、検証、進捗、再開地点を残す。
-* 完了後は現在文書を同期し、実行計画を `completed/` へ移動する。
-* ADR は重要な設計判断ごとに新規作成し、既存の判断内容を上書きしない。
-* 空文書や説明の重複を作らず、意味が変わる文書だけを更新する。
-
-空文書や説明の重複を作らず、実装によって意味が変わる文書だけを同期すること。複数フェーズは独立して検証可能にし、別セッションが `Phase N` の指示で再開できる情報を残すこと。
-
 ## Code quality
 
 * 責務、ポリシー、状態遷移、入力検証を I/O、UI、永続化、通信、OS、ハードウェアから可能な範囲で分離すること。
+* クリーンアーキテクチャに従い、外部境界、依存方向、責務分割、データ構造を明確にすること。
 * 新しい抽象化は、具体的な変化、外部境界、またはテスト上の必要性を隔離する場合だけ追加すること。
 * 名前は役割と意図を表し、コメントは理由、制約、トレードオフを説明すること。
 * 可変状態の所有者と更新箇所を明確にし、エラーを握り潰したり根拠のない既定値へ置き換えたりしないこと。
 * テストは観測可能な動作と回帰条件を検証し、実装を通すために削除、無効化、弱体化しないこと。
-* テストの実行と検証はハーネスに任せる。
+* テストの実行と検証は各プロジェクトのハーネスに任せる。
 
 ## Delegation
 
 基本的にメインエージェントはオーケストレーターとして、各サブエージェントの結果を統合すること。
 
 * ユーザの brain dump を一回の bounded pass で整理し、文書だけを作成する。その際、下記条件のサブエージェントを使用すること。文書化後に自動で再計画、継続調査、Finalization を行わないこと。
-  * モデルは gpt-5.6-sol
-  * reasoning effort は medium
-  * kmt-doc-rules スキルを使用すること
+  * モデルは `gpt-5.6-sol`
+  * reasoning effort は `medium`
 * 承認後の実装に下記条件のサブエージェントを使用すること。
-  * モデルは gpt-5.6-luna
-  * reasoning effort は xhigh
+  * モデルは `gpt-5.6-luna`
+  * reasoning effort は `xhigh`
 * 不具合調査やソースコード調査は下記条件のサブエージェントを使用すること。
-  * モデルは gpt-5.6-sol
-  * reasoning effort は medium
+  * モデルは `gpt-5.6-terra`
+  * reasoning effort は `medium`

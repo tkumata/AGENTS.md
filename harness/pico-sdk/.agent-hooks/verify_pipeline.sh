@@ -39,31 +39,51 @@ request_review() {
 }
 
 verify_static() {
-  jq empty .codex/hooks.json || return 1
-  jq empty .github/hooks/hooks.json || return 1
+  local hook_config
+  case "${AGENT_KIND:-}" in
+    codex) hook_config=.codex/hooks.json ;;
+    claude) hook_config=.claude/settings.json ;;
+    copilot) hook_config=.github/hooks/hooks.json ;;
+    *) return 1 ;;
+  esac
+
+  jq empty "${hook_config}" || return 1
 
   local script
   for script in .agent-hooks/*.sh; do
     bash -n "${script}" || return 1
   done
 
-  jq -e '
-    .hooks.PreToolUse[0].matcher == "Bash" and
-    .hooks.PreToolUse[0].hooks[0].command == "AGENT_KIND=codex ./.agent-hooks/pre_tool_guard.sh" and
-    .hooks.Stop[0].hooks[0].command == "AGENT_KIND=codex ./.agent-hooks/verify_pipeline.sh"
-  ' .codex/hooks.json >/dev/null || return 1
-  jq -e '
-    .version == 1 and
-    .hooks.preToolUse[0].bash == "AGENT_KIND=copilot ./.agent-hooks/pre_tool_guard.sh" and
-    .hooks.agentStop[0].bash == "AGENT_KIND=copilot ./.agent-hooks/verify_pipeline.sh"
-  ' .github/hooks/hooks.json >/dev/null || return 1
+  case "${AGENT_KIND}" in
+    codex)
+      jq -e '
+        .hooks.PreToolUse[0].matcher == "Bash" and
+        .hooks.PreToolUse[0].hooks[0].command == "AGENT_KIND=codex ./.agent-hooks/pre_tool_guard.sh" and
+        .hooks.Stop[0].hooks[0].command == "AGENT_KIND=codex ./.agent-hooks/verify_pipeline.sh"
+      ' "${hook_config}" >/dev/null || return 1
+      ;;
+    claude)
+      jq -e '
+        .hooks.PreToolUse[0].matcher == "Bash" and
+        .hooks.PreToolUse[0].hooks[0].command == "AGENT_KIND=claude ./.agent-hooks/pre_tool_guard.sh" and
+        .hooks.Stop[0].hooks[0].command == "AGENT_KIND=claude ./.agent-hooks/verify_pipeline.sh"
+      ' "${hook_config}" >/dev/null || return 1
+      ;;
+    copilot)
+      jq -e '
+        .version == 1 and
+        .hooks.preToolUse[0].bash == "AGENT_KIND=copilot ./.agent-hooks/pre_tool_guard.sh" and
+        .hooks.agentStop[0].bash == "AGENT_KIND=copilot ./.agent-hooks/verify_pipeline.sh"
+      ' "${hook_config}" >/dev/null || return 1
+      ;;
+  esac
 
   git diff --check || return 1
 }
 
 is_relevant_path() {
   case "$1" in
-    CMakeLists.txt|pico_sdk_import.cmake|.clang-format|.codex/hooks.json|.github/hooks/hooks.json|cmake/*|src/*|tests/*|assets/*|.agent-hooks/*)
+    CMakeLists.txt|pico_sdk_import.cmake|.clang-format|.codex/hooks.json|.claude/settings.json|.github/hooks/hooks.json|cmake/*|src/*|tests/*|assets/*|.agent-hooks/*)
       return 0
       ;;
     *)
@@ -112,11 +132,10 @@ check_fingerprint() {
 }
 
 read_cached_state() {
-  CACHED_STATUS=""
   CACHED_FINGERPRINT=""
 
   if [ -f "${STATE_FILE}" ]; then
-    read -r CACHED_STATUS CACHED_FINGERPRINT < "${STATE_FILE}" || true
+    read -r _ CACHED_FINGERPRINT < "${STATE_FILE}" || true
   fi
 }
 

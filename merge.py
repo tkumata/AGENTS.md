@@ -305,6 +305,8 @@ def merge(relative_path, existing, template):
         return merge_gitignore(existing, template)
     if relative_path == ".codex/hooks.json":
         return merge_codex_hooks(existing, template)
+    if relative_path == ".claude/settings.json":
+        return merge_codex_hooks(existing, template)
     if relative_path == ".github/hooks/hooks.json":
         return merge_github_hooks(existing, template)
     if relative_path == ".vscode/settings.json":

@@ -1,19 +1,17 @@
 # AGENTS.md
 
-生成 AI の性能が驚くような速度で進歩している状況でも、「開発」は「何を解決するのか」「誰に届けるのか」「開発者の入れ替えで進捗速度が左右されない」など原始的かつ根本的な部分は変わらないと考えてます。そこで、AI 時代でも開発に必要な以下の事柄を雛形として運用できるのではないかと考えました。
+生成 AI の性能が驚くような速度で進歩している状況でも、「開発」は「何を解決するのか」「誰に届けるのか」「開発者の交代に依存しない開発速度」など原始的かつ根本的な部分は変わらないと思っています。そこで、AI 時代でも開発に必要な以下の事柄を雛形として運用することで効率的に開発できるのではないかと考えました。
 
 - ドキュメントの管理・運用
 - ソースコードの品質 (可読性や保守性)
 
-本プロジェクトには、グローバル AGENTS.md、スキル、ハーネスを残しています。グローバル AGENTS.md は、AI プロバイダや各々のプロジェクトに依存しないような汎用的なルールで、ドキュメント、ソースコード品質を定めています。
+本プロジェクトには、グローバル AGENTS.md、スキル、ハーネスです。グローバル AGENTS.md は、AI プロバイダや各々のプロジェクトに依存しない汎用的なルールで、ドキュメント・ソースコード品質を定めています。
 
 スキルやハーネスはソースコード品質やテストや検証を決定論的に実行するので見逃しがなくなり、結果的に製品の質が上がると考えています。
 
-最終的に brain dump を AI に渡すだけで、ドキュメンテーション・実装・検証まで完了することを目指してます。現状は、ドキュメンテーションまで完了し人間の確認・承認を待つようにしています。
+## AGENTS.md の導入方法
 
-## AGENTS.md の使い方
-
-```shell
+```Shell
 # setup for Codex (CLI and App)
 ln -s "$(pwd)/AGENTS.md" "$HOME/.codex/AGENTS.md"
 
@@ -21,42 +19,29 @@ ln -s "$(pwd)/AGENTS.md" "$HOME/.codex/AGENTS.md"
 ln -s "$(pwd)/AGENTS.md" "$HOME/.claude/CLAUDE.md"
 
 # setup for Copilot CLI
-ln -s "$(pwd)/AGENTS.md" "$HOME/.copilot/copilot-instruction.md"
+ln -s "$(pwd)/AGENTS.md" "$HOME/.copilot/copilot-instructions.md"
 ```
 
-## SKILL の使い方
+## ハーネスの導入方法
 
-```sh
-# setup for Codex (CLI and App)
-ln -s "$(pwd)/Skills/clean-code-change" "$HOME/.codex/skills/clean-code-change"
-ln -s "$(pwd)/Skills/plan-before-implementation" "$HOME/.codex/skills/plan-before-implementation"
+本リポジトリ直下で対話式インストーラを実行します。ハーネスと docs-AGENTS.md を所定の場所にインストールします。
 
-# setup for Claude Code
-ln -s "$(pwd)/Skills/clean-code-change" "$HOME/.claude/skills/clean-code-change"
-ln -s "$(pwd)/Skills/plan-before-implementation" "$HOME/.claude/skills/plan-before-implementation"
-
-# setup for Copilot CLI
-ln -s "$(pwd)/Skills/clean-code-change" "$HOME/.copilot/skills/clean-code-change"
-ln -s "$(pwd)/Skills/plan-before-implementation" "$HOME/.copilot/skills/plan-before-implementation"
-```
-
-## docs-README の使い方
-
-```sh
-ln -s "$(pwd)/docs-README.md" "<your_repository>/docs/README.md"
-```
-
-## ハーネス
-
-リポジトリ直下で対話式インストーラを実行します。
-
-```sh
+```Shell
 ./install.sh
+
 # 変更予定だけを確認する場合
 ./install.sh --dry-run
 ```
 
-インストール先プロジェクトのパスを入力し、環境を `rust`、`pico-sdk`、`esp-idf` から番号で1つ選択します。質問はこの2項目だけです。選択した `harness/<environment>/` の隠しファイルとサブディレクトリを含む全内容が、インストール先の直下へ配置されます。
+インストール先プロジェクトのパス、環境（`rust`、`pico-sdk`、`esp-idf`）、エージェント（Codex、Claude Code、Copilot CLI）を番号で1つずつ選択します。選択した環境の共通ハーネスと、選択したエージェント用の設定だけが配置されます。
+
+| エージェント | docs 用指示 | hook 設定 |
+| ---------- | ----------------- | --------------------------- |
+| Codex | `docs/AGENTS.md` | `.codex/hooks.json` |
+| Claude Code | `docs/CLAUDE.md` | `.claude/settings.json` |
+| Copilot CLI | `docs/AGENTS.md` | `.github/hooks/hooks.json` |
+
+docs 用指示ファイルは、リポジトリ直下の `docs-AGENTS.md` への絶対 symlink です。`docs/` がなければ作成し、同じ symlink が既にあれば変更しません。選択外の設定は新規作成せず、既に存在しても変更しません。
 
 同一内容の既存ファイルは変更されません。`.gitignore`、フック JSON、VS Code 設定、`Cargo.toml`、`Makefile` は既存設定を保持して不足項目だけをマージします。同じ設定の値が異なる場合、未対応ファイルの内容が異なる場合、または型の異なる同名パスがある場合は、配置を開始せずエラー終了します。実行には Bash、Python 3、標準的な Unix コマンドが必要です。
 
@@ -81,22 +66,3 @@ C/C++、assembly、ESP-IDF のビルド設定、component manifest、partition t
 Rust 関連ファイルに変更がある場合、`Stop hook` は fingerprint の変化に応じて `make check` と `make build` を実行します。検証成功後は、現在の未コミット変更を正しさ、回帰、セキュリティ、テスト、ドキュメント整合性の観点でコードレビューするよう自然言語でエージェントへ指示します。
 
 レビューで Rust 関連ファイルを変更した場合は、次の `Stop hook` で検証をやり直します。
-
-## おまけ: GitHub Copilot の日本語化
-
-最近分かったのですが、下記を記述してると「Generate Commit Message」ボタンが機能しなくなる場合があります。一度機能しなくなると数日間機能しなくなります。
-
-コミットメッセージやレビューコメントを一括で日本語化します。コミットメッセージは VS Code 上だし、レビューコメントは GitHub 上だし、一括設定でどうするのかと言いますと `~/Library/Application Support/Code/User/settings.json` を以下のようにします。
-
-```json
-{
-  "github.copilot.chat.localeOverride": "ja",
-  "github.copilot.chat.commitMessageGeneration.instructions": [
-    {
-      "text": "ミットメッセージは必ず日本語で生成すること。必ず Conventional Commits 形式を使用し、以下の基準で prefix を選択すること：\n- feat: 新機能の追加\n- fix: バグ修正\n- docs: ドキュメントのみの変更\n- refactor: 動作を変えないコードの整理・リネーム・移動\n- chore: ビルド設定・依存関係・ツール類の変更\n- test: テストの追加・修正\n- style: フォーマット・インデントなど動作に影響しない変更\nfeat と docs は本当に該当する場合のみ使用し、安易に選ばないこと。件名は1行で簡潔に書き、本文に変更内容の概要を含めること。本文最後に <!-- PR レビューは日本語で行うこと --> を追記すること。"
-    }
-  ]
-}
-```
-
-このようにすると PR 作成時の説明欄に PR レビューは日本語で行う意図が入ります。PR の説明欄にこのような文があると GitHub Copilot は指示と認識して日本語で PR レビューするようになります。これなら GitHub の設定で PR レビューを自動的に発火させても安心です。

@@ -14,12 +14,6 @@
 ```Shell
 # setup for Codex (CLI and App)
 ln -s "$(pwd)/AGENTS.md" "$HOME/.codex/AGENTS.md"
-
-# setup for Claude Code
-ln -s "$(pwd)/AGENTS.md" "$HOME/.claude/CLAUDE.md"
-
-# setup for Copilot CLI
-ln -s "$(pwd)/AGENTS.md" "$HOME/.copilot/copilot-instructions.md"
 ```
 
 ## ハーネスの導入方法

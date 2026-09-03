@@ -4,7 +4,6 @@ set -u
 
 installer_dir=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd -P) || exit 1
 merge_helper="$installer_dir/merge.py"
-docs_agents_source="$installer_dir/docs-AGENTS.md"
 dry_run=0
 help_requested=0
 
@@ -47,10 +46,6 @@ if ! command -v python3 >/dev/null 2>&1; then
 fi
 if [ ! -f "$merge_helper" ]; then
   printf 'エラー: マージスクリプトが見つかりません: %s\n' "$merge_helper" >&2
-  exit 1
-fi
-if [ ! -f "$docs_agents_source" ]; then
-  printf 'エラー: docs-AGENTS.md が見つかりません: %s\n' "$docs_agents_source" >&2
   exit 1
 fi
 
@@ -130,17 +125,6 @@ if [ -e "$docs_directory" ] || [ -L "$docs_directory" ]; then
     exit 1
   fi
 fi
-if [ -L "$docs_agents_destination" ]; then
-  if [ "$(readlink "$docs_agents_destination")" = "$docs_agents_source" ]; then
-    docs_link_needed=0
-  else
-    printf 'エラー: 配置先と衝突しています: %s\n' "$docs_relative_path" >&2
-    exit 1
-  fi
-elif [ -e "$docs_agents_destination" ]; then
-  printf 'エラー: 配置先と衝突しています: %s\n' "$docs_relative_path" >&2
-  exit 1
-fi
 
 template_path_selected() {
   case "$1" in
@@ -210,10 +194,6 @@ fi
 if [ "$dry_run" -eq 1 ]; then
   copied_count=0
   merged_count=0
-  if [ "$docs_link_needed" -eq 1 ]; then
-    printf '予定: 新規: %s\n' "$docs_relative_path"
-    copied_count=$((copied_count + 1))
-  fi
   while IFS= read -r -d '' source_path; do
     relative_path=${source_path#"$source_dir"/}
     if ! template_path_selected "$relative_path"; then
@@ -258,13 +238,6 @@ fi
 
 copied_count=0
 merged_count=0
-if [ "$docs_link_needed" -eq 1 ]; then
-  if ! ln -s "$docs_agents_source" "$docs_agents_destination"; then
-    printf 'エラー: symlink を配置できません: %s\n' "$docs_relative_path" >&2
-    exit 1
-  fi
-  copied_count=$((copied_count + 1))
-fi
 while IFS= read -r -d '' source_path; do
   relative_path=${source_path#"$source_dir"/}
   if ! template_path_selected "$relative_path"; then

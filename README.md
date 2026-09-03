@@ -14,12 +14,6 @@
 ```Shell
 # setup for Codex (CLI and App)
 ln -s "$(pwd)/AGENTS.md" "$HOME/.codex/AGENTS.md"
-
-# setup for Claude Code
-ln -s "$(pwd)/AGENTS.md" "$HOME/.claude/CLAUDE.md"
-
-# setup for Copilot CLI
-ln -s "$(pwd)/AGENTS.md" "$HOME/.copilot/copilot-instructions.md"
 ```
 
 ## ハーネスの導入方法
@@ -34,14 +28,6 @@ ln -s "$(pwd)/AGENTS.md" "$HOME/.copilot/copilot-instructions.md"
 ```
 
 インストール先プロジェクトのパス、環境（`rust`、`pico-sdk`、`esp-idf`）、エージェント（Codex、Claude Code、Copilot CLI）を番号で1つずつ選択します。選択した環境の共通ハーネスと、選択したエージェント用の設定だけが配置されます。
-
-| エージェント | docs 用指示 | hook 設定 |
-| ---------- | ----------------- | --------------------------- |
-| Codex | `docs/AGENTS.md` | `.codex/hooks.json` |
-| Claude Code | `docs/CLAUDE.md` | `.claude/settings.json` |
-| Copilot CLI | `docs/AGENTS.md` | `.github/hooks/hooks.json` |
-
-docs 用指示ファイルは、リポジトリ直下の `docs-AGENTS.md` への絶対 symlink です。`docs/` がなければ作成し、同じ symlink が既にあれば変更しません。選択外の設定は新規作成せず、既に存在しても変更しません。
 
 同一内容の既存ファイルは変更されません。`.gitignore`、フック JSON、VS Code 設定、`Cargo.toml`、`Makefile` は既存設定を保持して不足項目だけをマージします。同じ設定の値が異なる場合、未対応ファイルの内容が異なる場合、または型の異なる同名パスがある場合は、配置を開始せずエラー終了します。実行には Bash、Python 3、標準的な Unix コマンドが必要です。
 

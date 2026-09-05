@@ -1,7 +1,5 @@
 # Global Agent Instructions
 
-In Code Mode, within each bounded stage, run independent, functions.exec-available tool calls concurrently in one functions.exec call. Use await Promise.allSettled([...]) when partial results are useful, and inspect every result; use await Promise.all([...]) only when any failure should abort the batch. Keep dependencies, waits/resumes, approvals, conflicting or interdependent mutations, and adaptive investigations where each result may change the next step sequential. Do not split otherwise batchable inspections across outer tool calls.
-
 ## Language
 
 * ユーザへの説明、進捗、計画、文書、最終回答は日本語で行うこと。
@@ -11,7 +9,7 @@ In Code Mode, within each bounded stage, run independent, functions.exec-availab
 ## Precedence
 
 * 実行環境の上位指示に従い、ユーザの明示指示と承認範囲をスキルの指針より優先すること。
-* リポジトリ固有の `AGENTS.md`、設計文書、規約、検証手順を確認して追加適用すること。
+* 適用対象のリポジトリ固有の `AGENTS.md` を確認し、設計文書、規約、検証手順は今回の作業に関係する範囲で確認して追加適用すること。
 * より具体的なリポジトリ固有指示を優先すること。
 * ただし、承認ゲート、ユーザ変更の保護、Git の安全規則は、明示的な指示なしに緩和しないこと。
 
@@ -27,13 +25,17 @@ In Code Mode, within each bounded stage, run independent, functions.exec-availab
 * テストは観測可能な動作と回帰条件を検証し、実装を通すために削除、無効化、弱体化しないこと。
 * テストの実行と検証は各プロジェクトの規定ハーネスに任せ、その結果を確認すること。失敗・未実行・検証できない範囲を報告し、実行していない検証を成功扱いしないこと。
 * 同一差分で成功済みの検証は、変更・失敗・未解決の懸念がなければ繰り返さないこと。追加検証は変更の影響と、ハーネスで確認できない動作に必要な範囲へ限定すること。
+* 禁止語:
+  * "Bottom Line:" "delve" "foster" "leverage" "it's worth noting"
+  * "X, not Y" の対比構文
+  * "In short:" の締め要約
 
 ## Workflow and approval
 
-開発は、計画の提案と文書の作成、承認、実装、報告の順で行うこと。
+開発は、計画の提案と必要な文書の作成、承認、実装、報告の順で行うこと。明白な小変更は会話中の計画提示でよく、計画のファイル化は必須としない。ただし、リポジトリ規約やユーザが文書を求める場合、または既存の正本文書の内容が変わる場合は、必要な文書を作成または更新すること。
 
 * 質問や方針提示だけの依頼では、その回答までを対象とし、自動でファイル作成や実装へ進まないこと。
-* brain dump を整理・清書して開発文書にする場合は `kmt-doc-rules` を適用すること。
+* ユーザが brain dump の整理・清書または開発文書化を求めた場合に、必要な文書を作成または更新すること。
 * 承認前に、ソースコード、テスト、設定、依存関係を開発・修正してはならない。
 * 承認前は、読み取り、検索、現状検証、問題再現、開発文書の作成または更新のみ行ってよい。
 * 承認は、提示した計画、設計、対象範囲、フェーズにのみ適用する。
@@ -47,7 +49,6 @@ In Code Mode, within each bounded stage, run independent, functions.exec-availab
 * 委任時は目的、対象範囲、編集対象、完了条件を伝え、メインエージェントは並行して別の必要作業を進めること。依存する作業や同じファイルの編集を並行させないこと。
 * メインエージェントは結果を確認・統合し、承認範囲と完了条件を満たしたか判断すること。
 * 委任時のモデルと reasoning effort は次のとおりとする。
-  * 単純な質問への回答: `gpt-6-astra` / `low`
+  * 単純な質問への回答や調査など汎用的なこと: `gpt-6-astra` / `low`
   * brain dump の文書化: `gpt-6-astra` / `medium`
   * 実装: `gpt-5.6-luna` / `max`
-  * 不具合調査・ソースコード調査: `gpt-5.6-terra` / `medium`

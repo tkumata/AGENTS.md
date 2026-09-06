@@ -1,8 +1,10 @@
 ---
-name: kmt-doc-rules
-description: brain dump や依頼内容を開発文書へ整理・反映する場合に使用する。相談や方針確認だけの依頼では使用しない。
+name: brain-dump-docs
+description: 開発文書の作成・更新ルール。ユーザがこの Skill を明示的に指定した場合のみ使用する。
 ---
 # Kmt Doc Rules
+
+この Skill は、ユーザが `brain-dump-docs` を明示的に指定した場合のみ適用する。自動選択や文脈推定によって使用しない。
 
 ユーザの意図を保ったまま、必要な開発文書だけを作成または更新する。ソースコードは変更しない。
 

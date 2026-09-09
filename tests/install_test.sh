@@ -326,6 +326,7 @@ cmp -s "$temporary_root/home-before" "$temporary_root/home-after" || fail 'repea
 for kind in file directory same-link other-link broken-link; do
   case_home="$temporary_root/home-$kind"
   mkdir -p "$case_home/.codex/skills" "$case_home/.codex/agents"
+  cp "$repository_dir/codex-config.toml" "$case_home/.codex/config.toml"
   for source in "$repository_dir/AGENTS.md" "$repository_dir"/codex-skills/* "$repository_dir"/codex-agents/*; do
     case "$source" in
       */codex-skills/*) destination="$case_home/.codex/skills/${source##*/}" ;;
@@ -384,6 +385,226 @@ if HOME="$fresh_home" run_installer "$fresh_target" 1 "$temporary_root/fresh-con
   fail 'fresh conflict succeeded'
 fi
 [ -z "$(find "$fresh_home" -mindepth 1 -print -quit)" ] || fail 'conflict modified HOME'
+
+# サブプロセス単位でホームを隔離し、TOML の値と実ファイルを検証する。
+if ! python3 - "$repository_dir" "$temporary_root" <<'PY'
+import os
+import stat
+import subprocess
+import sys
+from pathlib import Path
+
+import tomlkit
+
+repository = Path(sys.argv[1])
+root = Path(sys.argv[2]) / "config-cases"
+root.mkdir()
+template = tomlkit.parse((repository / "codex-config.toml").read_text())
+python = sys.executable
+
+
+def case(name, content=None):
+    folder = root / name
+    home = folder / "home"
+    target = folder / "target"
+    home.mkdir(parents=True)
+    target.mkdir()
+    config = home / ".codex/config.toml"
+    if content is not None:
+        config.parent.mkdir()
+        config.write_bytes(content)
+    return home, target, config
+
+
+def snapshot(folder):
+    result = {}
+    for path in folder.rglob("*"):
+        info = path.lstat()
+        result[str(path.relative_to(folder))] = (
+            info.st_mode, info.st_mtime_ns,
+            os.readlink(path) if path.is_symlink() else
+            path.read_bytes() if path.is_file() else None,
+        )
+    return result
+
+
+def run(paths, *, dry=False, success=True, command_dir=None, help_only=False):
+    home, target, _ = paths
+    environment = dict(os.environ, HOME=str(home))
+    if command_dir:
+        environment["PATH"] = str(command_dir) + os.pathsep + environment["PATH"]
+    args = [str(repository / "install.sh")]
+    if dry:
+        args.append("--dry-run")
+    if help_only:
+        args.append("--help")
+    result = subprocess.run(args, input=f"{target}\n1\n", text=True,
+                            capture_output=True, env=environment)
+    assert (result.returncode == 0) == success, result.stdout + result.stderr
+    return result.stdout + result.stderr
+
+
+def assert_settings(actual, expected):
+    for key, value in expected.items():
+        if isinstance(value, dict):
+            assert_settings(actual[key], value)
+        else:
+            assert type(actual[key]) is type(value) and actual[key] == value, key
+
+
+fresh = case("fresh")
+before = snapshot(fresh[0]), snapshot(fresh[1])
+assert "設定新規作成" in run(fresh, dry=True)
+assert before == (snapshot(fresh[0]), snapshot(fresh[1]))
+run(fresh)
+assert_settings(tomlkit.parse(fresh[2].read_text()).unwrap(), template.unwrap())
+assert stat.S_IMODE(fresh[2].stat().st_mode) == 0o600
+assert not list(fresh[2].parent.glob("config.toml.bak.*"))
+
+original = b'''# keep header\r
+model = "old" # keep model comment\r
+custom = [1, 2]\r
+[features.multi_agent_v2]\r
+min_wait_timeout_ms = 1\r
+extra = "keep" # keep extra comment\r
+[agents]\r
+enabled = false\r
+max_concurrent_threads_per_session = 4.0\r
+[projects."/example"]\r
+trust_level = "trusted"\r
+'''
+merged = case("merge", original)
+config = merged[2]
+config.chmod(0o640)
+sentinel = config.parent / "config.toml.bak.existing"
+sentinel.write_bytes(b"previous backup")
+before = snapshot(merged[0]), snapshot(merged[1])
+assert "バックアップ:" in run(merged, dry=True)
+assert before == (snapshot(merged[0]), snapshot(merged[1]))
+run(merged)
+actual = tomlkit.parse(config.read_text()).unwrap()
+assert_settings(actual, template.unwrap())
+assert actual["custom"] == [1, 2]
+assert actual["features"]["multi_agent_v2"]["extra"] == "keep"
+assert actual["projects"]["/example"]["trust_level"] == "trusted"
+for comment in ("# keep header", "# keep model comment", "# keep extra comment"):
+    assert comment in config.read_text()
+backups = [p for p in config.parent.glob("config.toml.bak.*") if p != sentinel]
+assert len(backups) == 1 and backups[0].read_bytes() == original
+assert stat.S_IMODE(backups[0].stat().st_mode) == 0o640
+assert stat.S_IMODE(config.stat().st_mode) == 0o640
+before = snapshot(merged[0]), snapshot(merged[1])
+assert "変更なし" in run(merged)
+run(merged, dry=True)
+assert before == (snapshot(merged[0]), snapshot(merged[1]))
+config.write_text(config.read_text().replace('model = "gpt-6-astra"', 'model = "older"'))
+second_original = config.read_bytes()
+run(merged)
+assert sentinel.read_bytes() == b"previous backup"
+assert backups[0].read_bytes() == original
+assert len(list(config.parent.glob("config.toml.bak.*"))) == 3
+assert any(p.read_bytes() == second_original for p in config.parent.glob("config.toml.bak.*"))
+
+# 等価な明示テーブル、ドット付き・インライン表記、CRLF は再実行でも保持する。
+for name, content in (
+    ("explicit", config.read_bytes().replace(b"\n", b"\r\n")),
+    ("dotted", (repository / "codex-config.toml").read_bytes()),
+    ("inline", b'features = {multi_agent_v2 = {min_wait_timeout_ms = 2, extra = 7}}\n'),
+):
+    paths = case(name, content)
+    run(paths)
+    assert_settings(tomlkit.parse(paths[2].read_text()).unwrap(), template.unwrap())
+    if name != "inline":
+        assert paths[2].read_bytes() == content
+        assert not list(paths[2].parent.glob("config.toml.bak.*"))
+    before = snapshot(paths[0])
+    run(paths)
+    assert snapshot(paths[0]) == before
+
+invalid_cases = {
+    "syntax": b"[broken\n",
+    "encoding": b"\xff",
+    "features-type": b"features = false\n",
+    "wait-type": b"[features]\nmulti_agent_v2 = []\n",
+    "context-type": b"[features]\ncontext_management = 1\n",
+    "agents-type": b"agents = true\n",
+}
+for name, content in invalid_cases.items():
+    paths = case(name, content)
+    before = snapshot(paths[0]), snapshot(paths[1])
+    run(paths, success=False)
+    run(paths, dry=True, success=False)
+    assert before == (snapshot(paths[0]), snapshot(paths[1]))
+
+for kind in ("link", "broken-link", "directory", "unreadable"):
+    paths = case(kind, b'model = "old"\n')
+    config = paths[2]
+    if kind == "unreadable":
+        config.chmod(0)
+    else:
+        config.unlink()
+        if kind == "directory":
+            config.mkdir()
+        else:
+            destination = config.parent / "other.toml"
+            if kind == "link":
+                destination.write_bytes(original)
+            config.symlink_to(destination)
+    # 読み取り不能なファイルは snapshot で読み込まず個別に検証する。
+    before = None if kind == "unreadable" else snapshot(paths[0])
+    run(paths, success=False)
+    run(paths, dry=True, success=False)
+    assert not list(paths[1].iterdir())
+    if before is not None:
+        assert before == snapshot(paths[0])
+    else:
+        assert stat.S_IMODE(config.stat().st_mode) == 0
+        config.chmod(0o600)
+        assert config.read_bytes() == b'model = "old"\n'
+
+conflict = case("harness-conflict", original)
+(conflict[1] / ".codex").mkdir()
+(conflict[1] / ".codex/hooks.json").write_text("invalid")
+before = snapshot(conflict[0]), snapshot(conflict[1])
+run(conflict, success=False)
+assert before == (snapshot(conflict[0]), snapshot(conflict[1]))
+
+# 外部コマンド境界だけで失敗を注入し、元設定とバックアップを確認する。
+for failure in ("dependency", "backup", "replace"):
+    paths = case(failure, original)
+    commands = paths[0].parent / "bin"
+    commands.mkdir()
+    if failure == "dependency":
+        import shlex
+        executable = commands / "python3"
+        executable.write_text("#!/bin/sh\nexec " + shlex.quote(python) + ' -S "$@"\n')
+    else:
+        executable = commands / ("cp" if failure == "backup" else "mv")
+        pattern = "*.bak.*" if failure == "backup" else "*/config.toml"
+        executable.write_text(
+            '#!/bin/sh\nfor last do :; done\ncase "$last" in\n' + pattern +
+            ') echo "injected failure" >&2; exit 1;;\nesac\nexec /bin/' +
+            executable.name + ' "$@"\n'
+        )
+    executable.chmod(0o755)
+    output = run(paths, success=False, command_dir=commands)
+    assert paths[2].read_bytes() == original
+    assert not list(paths[1].iterdir())
+    assert not (paths[0] / ".codex/AGENTS.md").exists()
+    assert not list(paths[2].parent.glob("config.toml.tmp.*"))
+    backups = list(paths[2].parent.glob("config.toml.bak.*"))
+    if failure == "replace":
+        assert len(backups) == 1 and backups[0].read_bytes() == original
+    else:
+        assert not backups
+    if failure == "dependency":
+        assert "pip install -r requirements.txt" in output
+        run(paths, command_dir=commands, help_only=True)
+print("All Codex config tests passed.")
+PY
+then
+  fail 'Codex config integration tests failed'
+fi
 
 if [ "$failures" -ne 0 ]; then
   printf '%s test(s) failed\n' "$failures" >&2

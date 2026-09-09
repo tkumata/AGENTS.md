@@ -119,7 +119,13 @@ install_global_file() {
 }
 
 staging_dir=$(mktemp -d "${TMPDIR:-/tmp}/harness-installer.XXXXXX") || exit 1
-trap 'rm -rf "$staging_dir"' EXIT HUP INT TERM
+config_temporary_path=''
+cleanup() {
+  [ -z "$config_temporary_path" ] || rm -f -- "$config_temporary_path"
+  rm -rf -- "$staging_dir"
+}
+trap cleanup EXIT
+trap 'exit 1' HUP INT TERM
 
 conflict_found=0
 while IFS= read -r -d '' source_path; do
@@ -170,6 +176,55 @@ if [ -z "${HOME:-}" ]; then
   printf 'エラー: HOME が設定されていません。\n' >&2
   exit 1
 fi
+
+config_path="$HOME/.codex/config.toml"
+config_candidate="$staging_dir/codex-config.toml"
+config_existing=/dev/null
+if [ -L "$config_path" ] || { [ -e "$config_path" ] && [ ! -f "$config_path" ]; }; then
+  printf 'エラー: 設定は通常ファイルである必要があります: %s\n' "$config_path" >&2
+  exit 1
+fi
+if [ -f "$config_path" ]; then
+  config_existing="$config_path"
+fi
+if ! python3 "$merge_helper" codex-config "$config_existing" \
+  "$installer_dir/codex-config.toml" "$config_candidate"; then
+  exit 1
+fi
+
+if [ "$config_existing" != /dev/null ] && cmp -s -- "$config_candidate" "$config_path"; then
+  printf '設定: 変更なし: %s\n' "$config_path"
+elif [ "$dry_run" -eq 1 ]; then
+  if [ "$config_existing" = /dev/null ]; then
+    printf '予定: 設定新規作成: %s\n' "$config_path"
+  else
+    printf '予定: 設定更新: %s (バックアップ: %s.bak.<一意な接尾辞>)\n' "$config_path" "$config_path"
+  fi
+else
+  mkdir -p -- "$(dirname -- "$config_path")" || exit 1
+  config_temporary_path=$(mktemp "$config_path.tmp.XXXXXX") || exit 1
+  # 既存のアクセス権を候補へ引き継ぐ。新規ファイルは mktemp の 0600。
+  if [ "$config_existing" != /dev/null ]; then
+    cp -p -- "$config_path" "$config_temporary_path" || exit 1
+  fi
+  cp -- "$config_candidate" "$config_temporary_path" || exit 1
+  if [ "$config_existing" != /dev/null ]; then
+    config_backup=$(mktemp "$config_path.bak.XXXXXX") || exit 1
+    if ! cp -p -- "$config_path" "$config_backup"; then
+      rm -f -- "$config_backup"
+      printf 'エラー: 設定のバックアップに失敗しました: %s\n' "$config_path" >&2
+      exit 1
+    fi
+    printf 'バックアップ: %s\n' "$config_backup"
+  fi
+  if ! mv -- "$config_temporary_path" "$config_path"; then
+    printf 'エラー: 設定の配置に失敗しました: %s\n' "$config_path" >&2
+    exit 1
+  fi
+  config_temporary_path=''
+  printf '設定配置: %s\n' "$config_path"
+fi
+
 install_global_file "$installer_dir/AGENTS.md" "$HOME/.codex/AGENTS.md" リンク || exit 1
 for skill_path in "$installer_dir"/codex-skills/*; do
   [ -d "$skill_path" ] || continue

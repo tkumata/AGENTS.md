@@ -3,6 +3,7 @@
 import json
 import re
 import sys
+from collections.abc import Mapping
 from pathlib import Path
 
 
@@ -285,7 +286,64 @@ def merge(relative_path, existing, template):
     raise MergeConflict("自動マージに対応していません")
 
 
+def merge_codex_config(existing_path, template_path, output_path):
+    try:
+        import tomlkit
+    except ImportError as error:
+        raise MergeConflict(
+            "tomlkit が必要です。README.md の仮想環境を準備し、"
+            "python3 -m pip install -r requirements.txt を実行してください。"
+        ) from error
+
+    try:
+        # 無変更時は改行形式も含めて元ファイルを保持する。
+        with open(existing_path, encoding="utf-8", newline="") as source:
+            original = source.read()
+        existing = tomlkit.parse(original)
+        template = tomlkit.parse(read_text(template_path))
+
+        def update(destination, settings, location):
+            changed = False
+            for key, value in settings.items():
+                child = f"{location}.{key}" if location else key
+                if key not in destination:
+                    # インラインテーブル内へ通常テーブルの構文を持ち込まない。
+                    destination[key] = (
+                        value.unwrap()
+                        if isinstance(destination, tomlkit.items.InlineTable)
+                        and isinstance(value, Mapping)
+                        else value
+                    )
+                    changed = True
+                elif isinstance(value, Mapping):
+                    if not isinstance(destination[key], Mapping):
+                        raise MergeConflict(f"テーブルである必要があります: {child}")
+                    changed = update(destination[key], value, child) or changed
+                else:
+                    current = destination[key]
+                    current_value = current.unwrap() if hasattr(current, "unwrap") else current
+                    new_value = value.unwrap() if hasattr(value, "unwrap") else value
+                    if type(current_value) is not type(new_value) or current_value != new_value:
+                        destination[key] = value
+                        changed = True
+            return changed
+
+        result = tomlkit.dumps(existing) if update(existing, template, "") else original
+        tomlkit.parse(result)
+        with open(output_path, "w", encoding="utf-8", newline="") as output:
+            output.write(result)
+    except (OSError, UnicodeError, tomlkit.exceptions.TOMLKitError) as error:
+        raise MergeConflict(f"Codex 設定をマージできません: {error}") from error
+
+
 def main():
+    if len(sys.argv) == 5 and sys.argv[1] == "codex-config":
+        try:
+            merge_codex_config(*sys.argv[2:])
+        except MergeConflict as error:
+            print(error, file=sys.stderr)
+            return 1
+        return 0
     if len(sys.argv) != 6 or sys.argv[1] != "merge":
         print("usage: merge.py merge RELATIVE_PATH EXISTING TEMPLATE OUTPUT", file=sys.stderr)
         return 2

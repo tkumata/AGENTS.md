@@ -141,35 +141,6 @@ def merge_codex_hooks(existing_text, template_text):
     return dump_json(existing)
 
 
-def merge_github_hooks(existing_text, template_text):
-    existing = load_json(existing_text, "配置先")
-    template = load_json(template_text, "テンプレート")
-    for key, value in template.items():
-        if key == "hooks":
-            continue
-        if key not in existing:
-            existing[key] = value
-        elif existing[key] != value:
-            raise MergeConflict(f"値が競合しています: {key}")
-
-    if "hooks" not in template or not isinstance(template["hooks"], dict):
-        raise MergeConflict("テンプレートの hooks が不正です")
-    if "hooks" not in existing:
-        existing["hooks"] = template["hooks"]
-        return dump_json(existing)
-    if not isinstance(existing["hooks"], dict):
-        raise MergeConflict("hooks は object である必要があります")
-
-    for event, template_items in template["hooks"].items():
-        if event not in existing["hooks"]:
-            existing["hooks"][event] = template_items
-        else:
-            merge_identified_items(
-                existing["hooks"][event], template_items, "bash", f"hooks.{event}"
-            )
-    return dump_json(existing)
-
-
 def merge_vscode_settings(existing_text, template_text):
     existing = load_json(existing_text, "配置先")
     template = load_json(template_text, "テンプレート")
@@ -305,10 +276,6 @@ def merge(relative_path, existing, template):
         return merge_gitignore(existing, template)
     if relative_path == ".codex/hooks.json":
         return merge_codex_hooks(existing, template)
-    if relative_path == ".claude/settings.json":
-        return merge_codex_hooks(existing, template)
-    if relative_path == ".github/hooks/hooks.json":
-        return merge_github_hooks(existing, template)
     if relative_path == ".vscode/settings.json":
         return merge_vscode_settings(existing, template)
     if relative_path == "Cargo.toml":

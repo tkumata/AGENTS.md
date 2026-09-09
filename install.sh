@@ -81,33 +81,6 @@ case "$environment_selection" in
     ;;
 esac
 
-printf '%s\n' 'エージェントを選択してください:'
-printf '%s\n' '  1) Codex' '  2) Claude Code' '  3) Copilot CLI'
-printf '選択: '
-if ! IFS= read -r agent_selection; then
-  printf 'エラー: エージェントを選択してください。\n' >&2
-  exit 1
-fi
-
-case "$agent_selection" in
-  1)
-    agent_kind=codex
-    docs_instruction_name=AGENTS.md
-    ;;
-  2)
-    agent_kind=claude
-    docs_instruction_name=CLAUDE.md
-    ;;
-  3)
-    agent_kind=copilot
-    docs_instruction_name=AGENTS.md
-    ;;
-  *)
-    printf 'エラー: 無効なエージェント選択です: %s\n' "$agent_selection" >&2
-    exit 1
-    ;;
-esac
-
 source_dir="$installer_dir/harness/$environment"
 if [ ! -d "$source_dir" ]; then
   printf 'エラー: ハーネステンプレートが見つかりません: %s\n' \
@@ -115,32 +88,34 @@ if [ ! -d "$source_dir" ]; then
   exit 1
 fi
 
-docs_directory="$target_dir/docs"
-docs_agents_destination="$docs_directory/$docs_instruction_name"
-docs_relative_path="docs/$docs_instruction_name"
-docs_link_needed=1
-if [ -e "$docs_directory" ] || [ -L "$docs_directory" ]; then
-  if [ ! -d "$docs_directory" ] || [ -L "$docs_directory" ]; then
-    printf 'エラー: 配置先と衝突しています: docs\n' >&2
-    exit 1
-  fi
-fi
-
 template_path_selected() {
   case "$1" in
-    .codex|.codex/*)
-      [ "$agent_kind" = codex ]
-      ;;
-    .claude|.claude/*)
-      [ "$agent_kind" = claude ]
-      ;;
-    .github|.github/*)
-      [ "$agent_kind" = copilot ]
-      ;;
-    *)
-      return 0
-      ;;
+    .claude|.claude/*|.github|.github/*) return 1 ;;
+    *) return 0 ;;
   esac
+}
+
+# 既存パスはリンク切れも含めて保持する。
+install_global_file() {
+  local source=$1 destination=$2 mode=$3
+  if [ -e "$destination" ] || [ -L "$destination" ]; then
+    printf 'スキップ: %s\n' "$destination"
+    return 0
+  fi
+  if [ "$dry_run" -eq 1 ]; then
+    printf '予定: %s: %s -> %s\n' "$mode" "$source" "$destination"
+    return 0
+  fi
+  if ! mkdir -p -- "$(dirname -- "$destination")"; then
+    printf 'エラー: 親ディレクトリを作成できません: %s\n' "$destination" >&2
+    return 1
+  fi
+  if [ "$mode" = リンク ]; then
+    ln -s -- "$source" "$destination" || return 1
+  else
+    cp -p -n -- "$source" "$destination" || return 1
+  fi
+  printf '%s: %s\n' "$mode" "$destination"
 }
 
 staging_dir=$(mktemp -d "${TMPDIR:-/tmp}/harness-installer.XXXXXX") || exit 1
@@ -191,6 +166,20 @@ if [ "$conflict_found" -ne 0 ]; then
   exit 1
 fi
 
+if [ -z "${HOME:-}" ]; then
+  printf 'エラー: HOME が設定されていません。\n' >&2
+  exit 1
+fi
+install_global_file "$installer_dir/AGENTS.md" "$HOME/.codex/AGENTS.md" リンク || exit 1
+for skill_path in "$installer_dir"/codex-skills/*; do
+  [ -d "$skill_path" ] || continue
+  install_global_file "$skill_path" "$HOME/.codex/skills/${skill_path##*/}" リンク || exit 1
+done
+for agent_path in "$installer_dir"/codex-agents/*; do
+  [ -f "$agent_path" ] || continue
+  install_global_file "$agent_path" "$HOME/.codex/agents/${agent_path##*/}" コピー || exit 1
+done
+
 if [ "$dry_run" -eq 1 ]; then
   copied_count=0
   merged_count=0
@@ -228,13 +217,6 @@ while IFS= read -r -d '' source_path; do
     fi
   fi
 done < <(find "$source_dir" -mindepth 1 -type d -print0)
-
-if [ "$docs_link_needed" -eq 1 ] && [ ! -d "$docs_directory" ]; then
-  if ! mkdir -- "$docs_directory"; then
-    printf 'エラー: ディレクトリを作成できません: docs\n' >&2
-    exit 1
-  fi
-fi
 
 copied_count=0
 merged_count=0

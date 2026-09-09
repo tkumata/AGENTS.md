@@ -41,7 +41,7 @@ active plan の完了処理や `completed` への移動は行わない。
 
 ## Active Plan
 
-新規作成時のみ `references/active-plan-template.md` に従う。
+新規作成時のみ `references/active-plan-template.md` に従う。gpt-5.6-luna モデルを考慮してタスクは、境界や範囲、仕様、決め事など完全に明確にし細かく分けること。
 
 既存 plan は既存構造を優先し、テンプレート適合だけを目的に書き換えない。
 

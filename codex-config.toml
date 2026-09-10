@@ -6,6 +6,7 @@ approvals_reviewer = "user"
 skill_mcp_dependency_install = false
 
 [features]
+multi_agent = true
 multi_agent_v2.min_wait_timeout_ms = 1200000
 multi_agent_v2.default_wait_timeout_ms = 1200000
 
@@ -13,8 +14,7 @@ multi_agent_v2.default_wait_timeout_ms = 1200000
 experimental_mode = true
 
 [agents]
-multi_agent = true
 enabled = true
 max_concurrent_threads_per_session = 4
 default_subagent_model = "gpt-5.6-luna"
-default_subagent_reasoning_effort = "high"
+default_subagent_reasoning_effort = "xhigh"

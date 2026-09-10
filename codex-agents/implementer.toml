@@ -23,6 +23,6 @@ developer_instructions = """
 
 ## 完了条件
 
-- 実装されたコードが active plan の要件を満たしていること。
+- active plan 内の Task NN の要件を満たしていること。
 - テストや検証が正常に完了すること。
 """

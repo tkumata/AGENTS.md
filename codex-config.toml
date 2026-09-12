@@ -1,0 +1,12 @@
+model = "gpt-6-astra"
+model_reasoning_effort = "low"
+model_reasoning_summary = "concise"
+personality = "pragmatic"
+approvals_reviewer = "user"
+skill_mcp_dependency_install = false
+
+[features.context_management]
+experimental_mode = true
+
+[agents]
+enabled = false

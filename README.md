@@ -7,14 +7,14 @@
 
 本プロジェクトには、グローバル AGENTS.md、スキル、ハーネスです。グローバル AGENTS.md はプロジェクトに依存しない汎用的なルールで、ドキュメント・ソースコード品質を定めています。
 
-Codex Plus プランは、消費が激しいので以下の前提で構築しています。
+ChatGPT Plus プランでは、コストの消費が激しいので以下の前提で構築しています。
 
 ```text
           gpt-5.6-sol medium
             (orchestrator)
                   │
-                  ▼
-        ┌─────────┴────────┐
+        ┌─────────┴──────────┐
+        ▼                    ▼
 gpt-5.6-luna xhigh     gpt-6-astra low
    (implementer)          (advisor)
 ```
@@ -64,6 +64,8 @@ cp -p ~/.codex/config.toml.bak.実際の接尾辞 ~/.codex/config.toml
 
 インストーラの検証は、依存を準備した環境で `bash tests/install_test.sh` を実行します。一時ホームを使用し、実際の `~/.codex/config.toml` は変更しません。このテストは macOS の `stat` を使用します。
 
+## ハーネスについて
+
 ### Pico-SDK の場合
 
 `.h`, `.c`, `.cpp`, `.hpp`, `.cmake` などソースコードファイルの fingerprint を見て、違いがあればフォーマットチェックとビルドを行い、結果をエージェントに返します。これにより、多純な質問などではハーネスが発火せずソースコードなどを編集した時だけハーネスが発火します。
@@ -83,7 +85,3 @@ C/C++、assembly、ESP-IDF のビルド設定、component manifest、partition t
 Rust 関連ファイルに変更がある場合、`Stop hook` は fingerprint の変化に応じて `make check` と `make build` を実行します。検証成功後は、現在の未コミット変更を正しさ、回帰、セキュリティ、テスト、ドキュメント整合性の観点でコードレビューするよう自然言語でエージェントへ指示します。
 
 レビューで Rust 関連ファイルを変更した場合は、次の `Stop hook` で検証をやり直します。
-
-## Astra について
-
-Astra はサブエージェントを使うとよりリソースを消費するため、本プロジェクトでは強制的にサブエージェントを使わないようにしています。

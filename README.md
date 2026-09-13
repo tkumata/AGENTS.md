@@ -7,6 +7,18 @@
 
 本プロジェクトには、グローバル AGENTS.md、スキル、ハーネスです。グローバル AGENTS.md はプロジェクトに依存しない汎用的なルールで、ドキュメント・ソースコード品質を定めています。
 
+Codex Plus プランは、消費が激しいので以下の前提で構築しています。
+
+```text
+          gpt-5.6-sol medium
+            (orchestrator)
+                  │
+                  ▼
+        ┌─────────┴────────┐
+gpt-5.6-luna xhigh     gpt-6-astra low
+   (implementer)          (advisor)
+```
+
 ## 導入方法
 
 実行には Bash、Python 3、標準的な Unix コマンドと `tomlkit` が必要です。本リポジトリ直下で仮想環境を準備してから、対話式 Codex 専用インストーラを実行します。

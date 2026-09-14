@@ -10,13 +10,16 @@
 ChatGPT Plus プランでは、コストの消費が激しいので以下の前提で構築しています。
 
 ```text
-          gpt-5.6-sol medium
-            (orchestrator)
-                  │
-        ┌─────────┴──────────┐
-        ▼                    ▼
-gpt-5.6-luna xhigh     gpt-6-astra low
-   (implementer)          (advisor)
+           ┌────────────────────┐
+           │ gpt-5.6-sol medium │
+           │   (orchestrator)   │
+           └─────────┬──────────┘
+         ┌───────────┴────────────┐
+         ▼                        ▼
+┌────────────────────┐   ┌─────────────────┐
+│ gpt-5.6-luna xhigh │   │ gpt-6-astra low │
+│   (implementer)    │   │    (advisor)    │
+└────────────────────┘   └─────────────────┘
 ```
 
 ## 導入方法

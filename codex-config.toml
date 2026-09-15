@@ -1,0 +1,19 @@
+model = "gpt-5.6-sol"
+model_reasoning_effort = "medium"
+model_reasoning_summary = "concise"
+personality = "pragmatic"
+approvals_reviewer = "user"
+skill_mcp_dependency_install = false
+
+[features]
+multi_agent_v2.min_wait_timeout_ms = 150000
+multi_agent_v2.default_wait_timeout_ms = 150000
+
+[features.context_management]
+experimental_mode = false
+
+[agents]
+enabled = true
+max_concurrent_threads_per_session = 4
+default_subagent_model = "gpt-5.6-luna"
+default_subagent_reasoning_effort = "xhigh"

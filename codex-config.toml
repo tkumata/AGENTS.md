@@ -3,11 +3,10 @@ model_reasoning_effort = "medium"
 model_reasoning_summary = "concise"
 personality = "pragmatic"
 approvals_reviewer = "user"
-skill_mcp_dependency_install = false
 
 [features]
-multi_agent_v2.min_wait_timeout_ms = 150000
-multi_agent_v2.default_wait_timeout_ms = 150000
+multi_agent_v2.min_wait_timeout_ms = 600000
+multi_agent_v2.default_wait_timeout_ms = 600000
 
 [features.context_management]
 experimental_mode = false

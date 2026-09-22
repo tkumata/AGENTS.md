@@ -1,4 +1,4 @@
-model = "gpt-5.6-sol"
+model = "gpt-6-sol"
 model_reasoning_effort = "medium"
 model_reasoning_summary = "concise"
 personality = "pragmatic"
@@ -14,5 +14,5 @@ experimental_mode = false
 [agents]
 enabled = true
 max_concurrent_threads_per_session = 4
-default_subagent_model = "gpt-5.6-luna"
-default_subagent_reasoning_effort = "xhigh"
+default_subagent_model = "gpt-6-luna"
+default_subagent_reasoning_effort = "high"

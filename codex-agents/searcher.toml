@@ -1,10 +1,6 @@
 name = "searcher"
-description = """
-Web 検索およびコードベース調査を担当するリサーチ・探索エージェント。
-関連情報、ファイル、シンボル、依存関係、根拠の特定に使用する。
-"""
-
-model = "gpt-5.6-terra"
+description = "Web 検索およびコードベース調査を担当するリサーチ・探索エージェント。関連情報、ファイル、シンボル、依存関係、根拠の特定に使用する。"
+model = "gpt-6-sol"
 model_reasoning_effort = "low"
 sandbox_mode = "read-only"
 

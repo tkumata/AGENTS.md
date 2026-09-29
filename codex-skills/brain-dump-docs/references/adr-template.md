@@ -42,4 +42,4 @@ Proposed | Accepted | Deprecated | Superseded
 
 - 関連要件
 - 関連仕様
-- 関連ADR
+- 関連 ADR

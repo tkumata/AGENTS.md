@@ -21,25 +21,34 @@ description: 開発文書の作成・更新ルール。ユーザがこの Skill 
 
 ## Artifacts
 
-リポジトリに文書の名称、配置、形式、承認規約がある場合はそれに従う。規約がない場合は以下を既定とする。
+リポジトリに文書の名称、配置、形式、承認規約がある場合はそれに従う。規約がない場合は以下を既定とする。新規作成時は以下の順番で作成する。
 
-* `docs/current/REQUIREMENTS.md`: 要求、制約、受け入れ条件
-* `docs/current/SPECIFICATIONS.md`: 外部動作、入出力、状態、エラー、境界条件
-* `docs/current/DESIGN.md`: 責務、依存関係、外部境界、主要データ構造
-* `docs/current/PRD.md`: 背景、対象ユーザ、ゴール、スコープ、成功指標
-* `docs/adr/NNNN-short-title.md`: 長期的な変更コストを持つ設計判断
-* `docs/plans/active/YYYY-MM-DD-short-name.md`: 小規模変更は会話で範囲を提示できるようにし、plan は明示要求・複数段階・別セッションへの引き継ぎに限定
+1. `docs/current/PRD.md`: 背景、対象ユーザ、ゴール、スコープ、成功指標
+2. `docs/current/REQUIREMENTS.md`: 要求、制約、受け入れ条件
+3. `docs/current/SPECIFICATIONS.md`: 外部動作、入出力、状態、エラー、境界条件
+4. `docs/current/DESIGN.md`: 責務、依存関係、外部境界、主要データ構造
+5. `docs/adr/NNNN-short-title.md`: 長期的な変更コストを持つ設計判断
+6. `docs/plans/active/YYYY-MM-DD-short-name.md`: 小規模変更は会話で範囲を提示できるようにし、plan は明示要求・複数段階・別セッションへの引き継ぎに限定
 
-ADR は上書きせず、判断を変更する場合は新しい ADR を作成する。
-
-承認済み範囲は維持し、変更された範囲だけを未承認として扱う。ユーザ承認なしに approved と記録しない。
+- ADR は上書きせず、判断を変更する場合は新しい ADR を作成する。
+- 承認済み範囲は維持し、変更された範囲だけを未承認として扱う。ユーザ承認なしに approved と記録しない。
 
 ## Active Plan
 
-* 新規作成時のみ `references/active-plan-template.md` に従うこと。
 * 各タスクに対象範囲、必要な仕様、受け入れ条件、検証方法を記載する。未決定事項は Open Questions に残す。
 * 独立して実装・検証できる単位で分割する。
 * 既存 plan は既存構造を優先し、テンプレート適合だけを目的に書き換えない。
+
+## Templates
+
+新規作成時は以下のテンプレートに従うこと。
+
+* `references/prd-template.md`: PRD のテンプレート
+* `references/requirements-template.md`: 要件定義のテンプレート
+* `references/specifications-template.md`: 仕様のテンプレート
+* `references/design-template.md`: 設計のテンプレート
+* `references/adr-template.md`: ADR のテンプレート
+* `references/active-plan-template.md`: Active Plan のテンプレート
 
 ## Completion
 

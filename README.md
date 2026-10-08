@@ -9,22 +9,9 @@
 
 ![Summary](./summary.png)
 
-ChatGPT Plus プランでは贅沢できないので、以下のように組んでます。`6.1-sol high` が設計・実装を担当し、`6.1-sol low` がコードベースの探索や Web 検索を担当します。実装後の検証で2回失敗した場合に `6-astra low` へ原因調査を委任します。
+ChatGPT Plus プランでは贅沢できないので、下記のようにオーケストレーションしています。`6.1-sol high` が設計・実装を担当し、`6.1-sol low` がコードベースの探索や Web 検索を担当します。実装後の検証で2回失敗した場合に `6-astra low` へ原因調査を委任します。
 
-```text
-┌──────────────────────────────┐
-│ gpt-6.1-sol high             │
-│ (orchestrator & implementer) │
-└────────┬─────────────────────┘
-         ├────────────────────┐
-         ▼                    ▼
-┌─────────────────┐  ┌─────────────────┐
-│ gpt-6.1-sol low │  │ gpt-6-astra low │
-│   (searcher)    │  │    (advisor)    │
-└─────────────────┘  └─────────────────┘
-```
-
-タスクの内容によりますがうちでは、1タスクあたり week limit を 1〜2% 使用します。
+![Agents](./agents.png)
 
 ## 導入方法
 
@@ -36,7 +23,6 @@ source /tmp/codex-installer-venv/bin/activate
 python3 -m pip install -r requirements.txt
 
 ./install.sh
-
 # 変更予定だけを確認する場合
 ./install.sh --dry-run
 ```

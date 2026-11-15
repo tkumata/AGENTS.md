@@ -1,3 +1,9 @@
+[package]
+rust-version = "1.100"
+
+[lints.cargo]
+unused_dependencies = "deny"
+
 [lints.clippy]
 pedantic = { level = "deny", priority = -1 }
 unwrap_used = "deny"
